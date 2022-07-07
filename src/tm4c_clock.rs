@@ -2,7 +2,7 @@
 //This is not meant to be a comprehensive embedded-time impl which
 //will be a much more involved effort and to be done in the tm4c-hal fork repo.
 //Just a temporary impl to use for now for the utp device clock
-//TODO: Make the full embedded-time impl in tm4c-hal repo someday 
+//TODO: Make the full embedded-time impl in tm4c-hal repo someday
 //      (if it is really worth it and there are no better/more standardized HAL abstractions by then )
 extern crate embedded_time;
 extern crate tm4c123x;
@@ -11,9 +11,7 @@ extern crate tm4c123x_hal;
 use embedded_time as hal_time;
 use hal_time::fraction::Fraction;
 use hal_time::clock::{Error, Clock};
-use hal_time::{Instant, TimeInt};
-use hal_time::duration::{Milliseconds, Generic};
-use hal_time::fixed_point::FixedPoint;
+use hal_time::Instant;
 
 use tm4c123x_hal::sysctl;
 use tm4c123x_hal::sysctl::Clocks;
@@ -64,7 +62,7 @@ impl Tm4cClock {
                         .tben().set_bit()
                     );
 
-                    let mut clock = Tm4cClock {
+                    let clock = Tm4cClock {
                         timer: tim,
                         clocks: *clocks,
                     };
@@ -83,7 +81,7 @@ impl Clock for Tm4cClock {
     fn try_now(&self) -> Result<Instant<Self>, Error> {
     	let current_ticks: u64 = (self.timer.tav.read().bits() as u64) + (((self.timer.tbv.read().bits()) as u64) << 32) as u64;
     	let millis: u64 = current_ticks / (((self.clocks.sysclk.0) as u64));
-    	
+
     	Ok(Instant::new(millis))
     }
 }

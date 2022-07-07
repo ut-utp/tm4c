@@ -1,4 +1,3 @@
-use core::hint::unreachable_unchecked;
 use core::marker::PhantomData;
 use core::sync::atomic::Ordering;
 use core::{sync::atomic::AtomicBool, fmt::Debug};

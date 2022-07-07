@@ -25,15 +25,14 @@ extern crate tm4c123x_hal as hal;
 
 use core::fmt::Write;
 
-use crate::flash::Flash_Unit;
-use crate::paging::RAM_Pages;
+// use crate::flash::Flash_Unit;
+// use crate::paging::RAM_Pages;
 
 use core::convert::Infallible;
 
 use hal::prelude::*;
 use hal::gpio::{AlternateFunction, AF1, PushPull};
 use hal::gpio::gpioa::{PA1, PA0};
-use hal::prelude::*;
 
 
 use lc3_traits::control::rpc::{
@@ -45,7 +44,7 @@ use lc3_baseline_sim::interp::{
 };
 use lc3_baseline_sim::sim::Simulator;
 use lc3_traits::control::Control;
-use lc3_traits::peripherals::stubs::{PwmStub, ClockStub, GpioStub, TimersStub, AdcStub};
+use lc3_traits::peripherals::stubs::PwmStub;
 use lc3_traits::peripherals::{
     PeripheralSet,
     stubs::{
@@ -77,7 +76,7 @@ use tm4c123x_hal::gpio::{
     self as gp,
     PullUp,
     gpiof::{self, PF0, PF1, PF2, PF3, PF4},
-    gpiob::{self, PB3, PB4, PB5, PB6, PB7},
+    gpiob::{self, PB5, PB6, PB7},
 };
 
 generic_gpio::io_pins_with_typestate! {
@@ -195,7 +194,7 @@ pub fn setup(
     // Peripheral Init:
     let peripheral_set = {
         let mut portf = p.GPIO_PORTF.split(&sc.power_control);
-        let mut pf0 = portf.pf0.unlock(&mut portf.control);  //pf0 is special pin to be unlocked
+        let pf0 = portf.pf0.unlock(&mut portf.control);  //pf0 is special pin to be unlocked
         let portb = p.GPIO_PORTB;
 
         let gpiof::Parts { pf1: g1, pf2: g2, pf3: g3, pf4: g4, .. } = portf;
@@ -231,14 +230,14 @@ pub fn setup(
         // );
         let pwm = PwmStub;
 
-        let mut tm4c_timer0 = Timer::<tm4c123x::WTIMER0>::wtimer0(p.WTIMER0, MillisU16(Millis(4)), &sc.power_control, &clocks);
-        let mut tm4c_timer1 = Timer::<tm4c123x::WTIMER1>::wtimer1(p.WTIMER1, MillisU16(Millis(4)), &sc.power_control, &clocks);
+        let tm4c_timer0 = Timer::<tm4c123x::WTIMER0>::wtimer0(p.WTIMER0, MillisU16(Millis(4)), &sc.power_control, &clocks);
+        let tm4c_timer1 = Timer::<tm4c123x::WTIMER1>::wtimer1(p.WTIMER1, MillisU16(Millis(4)), &sc.power_control, &clocks);
 
-        let mut utp_timer = GenericTimer::<MillisU16, _, _, _>::new(tm4c_timer0, tm4c_timer1);
+        let utp_timer = GenericTimer::<MillisU16, _, _, _>::new(tm4c_timer0, tm4c_timer1);
         let timers = utp_timer;
 
         let tm4c_clock = tm4c_clock::Tm4cClock::new(p.WTIMER2, &sc.power_control, &clocks);
-        let mut utp_clock = GenericClock::<_, u64>::new(tm4c_clock);
+        let utp_clock = GenericClock::<_, u64>::new(tm4c_clock);
         let clock = utp_clock;
 
         PeripheralSet::new(
