@@ -18,6 +18,7 @@ You can grab a TM4C image (a `.bin` file; TODO: issue #5) from the [releases pag
 
 You'll need to grab `lm4flash` and potentially install a driver in order to flash your TM4C. [This page](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#for-the-tm4c) has instructions on how to do so.
 
+(TODO: replace with `utp-tui --flash tm4c`; flip the sections around so that installing the TUI comes first!)
 Once you've done this, to flash your board run `lm4flash -v <path to the .bin file>`.
 
 On macOS and Linux:
@@ -28,6 +29,7 @@ On Windows:
 At this point, if flashing the board was successful, your on-board LED should be blinking (TODO: issue #4).
 
 (TODO: ulimately we want to switch to probe-rs and have the TUI handle this, actually...)
+(See: ut-utp/tui#11)
 
 #### Next: Launch the TUI
 
@@ -55,7 +57,7 @@ If you're looking to make changes to or hack on `utp-tm4c` there are a few more 
 
 #### Using Nix
 
-> Note: If you're using macOS or Linux we _strongly_ recommend using [`nix`](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#using-nix) and [VSCode](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#ide-setup). This is the best supported workflow.
+> Note: If you're using macOS or Linux we _strongly_ recommend [using `nix` and VSCode](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#using-nix). This is the best supported workflow.
 #### Otherwise
 
 Follow [these instructions](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup) to set up your dev environment. Be sure to also follow the ["Embedded Development Setup" instructions](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#embedded-development-setup).
@@ -63,15 +65,20 @@ Follow [these instructions](https://github.com/ut-utp/.github/wiki/Dev-Environme
 ### Doing Development
 
 To build the project:
-  - `cargo b` (`cargo.exe` on Windows)
+  - `cargo b`
 
 `rustup` will automatically fetch the [appropriate toolchain](rust-toolchain.toml) and the tools needed to build for ARM.
 
 To run the project (launches a debugger):
-  - `cargo r` (`cargo.exe` on Windows)
+  - `cargo r`
     + This uses `gdb` as a "runner" as specified in [`.cargo/config`](.cargo/config).
-    + If you're not using `nix` you will need to make sure both `gdb` and `openocd` are in your path.
-      * **Note**: Windows users will need to either modify [`.cargo/config`](.cargo/config) and [`.gdbconfig`](.gdbconfig) to make reference to `gdb.exe` and `openocd.exe` or introduce symlinks/copies of those binaries.
+    + If you're not using `nix`, make sure you have installed GDB, OpenOCD, and the LLVM binutils as [described in the setup guide](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#embedded-development-setup).
+    + You may need to [configure GDB](https://sourceware.org/gdb/onlinedocs/gdb/Auto_002dloading-safe-path.html) to allow autoloading [`.gdbinit`](.gdbinit) (optional).
+
+> 🚨 NOTE 🚨: Be sure to run `continue` before exiting GDB! If you do not do this your board will enter a bad state and will need to be power cycled before you can attach a debugger to it again.
+To flash your board (without attaching a debugger):
+  - `cargo flash`
+    + This uses `lm4flash` and attempts to grab `lm4flash` binaries from [here](https://github.com/ut-utp/.github/wiki/lm4flash-Binaries) if you do not already have it installed locally.
 
 #### VSCode Support
 
@@ -91,5 +98,7 @@ To run/debug the project (launches VSCode's integrated debugger):
     * i.e. replace `gdb` with `gdb.exe`, etc.
   - **Note**: if you are **not** using `nix` you will need to manually [fetch `TM4C123GH6PM.svd`](https://github.com/ut-utp/tm4c/blob/55d67a9ed04ea08bdffff7abedfe8f70a349df23/flake.nix#L76-L79) and place it at `.vscode/TM4C123GH6PM.svd` if you want to use the device register views that the [Cortex-Debug extension](https://github.com/Marus/cortex-debug/wiki/Overview) offers
     * i.e. `curl -L https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/TexasInstruments/TM4C123GH6PM.svd > .vscode/TM4C123GH6PM.svd`
+
+> 🚨 NOTE 🚨: Be sure to `continue` (<kbd>F5</kbd>) before exiting your debug session! If you do not do this your board will enter a bad state and will need to be power cycled before you can attach a debugger to it again.
 
 (TODO: tests, test task, etc.)
