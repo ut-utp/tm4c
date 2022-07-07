@@ -196,8 +196,8 @@ fn find_device() -> String {
 }
 
 fn find_llvm_objcopy(sh: &Shell) -> PathBuf {
-    const HOST_TRIPLE: &'static str = env!("HOST_TRIPLE");
-    const RUSTC: &'static str = env!("RUSTC_PATH");
+    const HOST_TRIPLE: &str = env!("HOST_TRIPLE");
+    const RUSTC: &str = env!("RUSTC_PATH");
 
     // $HOST
     // $RUSTC --print sysroot
@@ -249,7 +249,7 @@ fn find_llvm_objcopy(sh: &Shell) -> PathBuf {
 }
 
 fn find_or_get_lm4flash(sh: &Shell) -> PathBuf {
-    const XTASK_ARTIFACT_DIR: &'static str = env!("XTASK_ARTIFACT_DIR");
+    const XTASK_ARTIFACT_DIR: &str = env!("XTASK_ARTIFACT_DIR");
 
     // check $PATH
     // check our target folder (infer from arg0 or $CARGO_MANIFEST_DIR)
@@ -269,7 +269,7 @@ fn find_or_get_lm4flash(sh: &Shell) -> PathBuf {
     }
 
     // Last: download it.
-    const DOWNLOAD_PREFIX: &'static str = "https://github.com/ut-utp/.github/wiki/assets/binaries/";
+    const DOWNLOAD_PREFIX: &str = "https://github.com/ut-utp/.github/wiki/assets/binaries/";
     let suffix = match (consts::OS, consts::ARCH) {
         ("macos" | "ios", "x86_64" | "aarch64") => "macos/lm4flash",
         ("linux" | "freebsd" | "dragonfly" | "netbsd" | "openbsd" | "solaris" | "android", arch @ "x86_64" | arch @ "aarch64") => {
@@ -406,6 +406,31 @@ impl Mode {
 
         let sh = Shell::new().unwrap();
 
+        if let Mode::Debug = self {
+            // TODO: check for `gdb`!
+            // TODO: check for `openocd`!
+            // TODO: find `.gdbconfig`!
+
+            // As per: https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#embedded-development-setup
+            //
+            // TODO: support alternates; search the path, etc.
+            let gdb_exec_name = if cfg!(windows) {
+                "gdb.exe"
+            } else if consts::OS == "macos" || consts::OS == "ios" {
+                "gdb"
+            } else {
+                "gdb-multiarch"
+            };
+
+            let err = exec::Command::new(gdb_exec_name)
+                .arg("-q")
+                .arg("-x")
+                .arg(".gdbconfig")
+                .arg(bin)
+                .exec();
+            panic!("{err}");
+        }
+
         // TODO: make timeout adjustable (env var, flag)
         let timeout = Duration::from_secs(60 * 3);
 
@@ -457,7 +482,7 @@ impl Mode {
                 eprint!("{:>12} ", "Programming".cyan().bold(),);
                 let mut count = 13;
 
-                while let Err(_) = rx.try_recv() {
+                while rx.try_recv().is_err() {
                     eprint!("{}", '.'.dimmed());
                     count += 1;
 
@@ -489,11 +514,6 @@ impl Mode {
 
         if let Mode::Flash = self {
             return Ok(());
-        }
-        if let Mode::Debug = self {
-            // exec into gdb, etc.
-            // (skip flashing too!)
-            todo!()
         }
 
         if let Mode::Run = self {
