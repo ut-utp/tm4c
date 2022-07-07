@@ -1,10 +1,10 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-runner = "gdb -q -x .gdbconfig"
+runner = "cargo run -q --bin xtask --"
 
 rustflags = [
   "-C", "link-arg=-Tlink.x",
 #  "-C", "linker=flip-link", # TODO
-  "-C", "force-frame-pointers=yes",
+#  "-C", "force-frame-pointers=yes",
 ]
 
 
@@ -15,13 +15,16 @@ rustflags = [
 #
 # But, it doesn't look like the feature above is headed towards stabilization
 # anytime soon and we don't want to tie ourselves to nightly so we stick with
-# this and stomach needing to be in the repo root to `cargo run`/`cargo flash`.
+# this and use aliases where possible to specify the target triple.
+#
+# See: https://github.com/ut-utp/tm4c/issues/6 for more details.
 [build]
-target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
+# target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
 
 [alias]
-b = "build --release"
-r = "run --release"
+r = "run --release --target thumbv7em-none-eabihf"
+b = "build --release --target thumbv7em-none-eabihf"
+ben = "bench --target thumbv7em-none-eabihf"
 
 # Notes:
 # call stack: cargo +nightly call-stack  --bin utp-tm4c | dot -Tpng > out.png
