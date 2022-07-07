@@ -14,7 +14,7 @@ To be used in conjuction with the [UTP TUI](//github.com/ut-utp/tui.git).
 
 #### First: Flash your TM4C
 
-You can grab a TM4C image (a `.bin` file; TODO: issue #7) from the [releases page](https://github.com/ut-utp/tm4c/releases).
+You can grab a TM4C image (a `.bin` file; TODO: issue #5) from the [releases page](https://github.com/ut-utp/tm4c/releases).
 
 You'll need to grab `lm4flash` and potentially install a driver in order to flash your TM4C. [This page](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#for-the-tm4c) has instructions on how to do so.
 
@@ -25,7 +25,7 @@ On macOS and Linux:
 On Windows:
   - `lm4flash.exe -v utp-tm4c.bin`
 
-At this point, if flashing the board was successful, your on-board LED should be blinking (TODO: issue #6).
+At this point, if flashing the board was successful, your on-board LED should be blinking (TODO: issue #4).
 
 (TODO: ulimately we want to switch to probe-rs and have the TUI handle this, actually...)
 
