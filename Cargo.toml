@@ -47,22 +47,19 @@ lto = true # better optimizations
 # opt-level = "s"
 
 
-# :-(
-# https://github.com/rust-lang/cargo/issues/5478
-#
-# 'lc3-tm4c' has not updated yet..
-#
-# have to change the source so we do this silly workaround (note the two slashes)
-# [patch."https://github.com/ut-utp/prototype.git"]
-# lc3-isa = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
-# lc3-traits = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
-# lc3-baseline-sim = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
-# lc3-device-support = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
+[profile.dev] # and also `profile.test`
+opt-level = 1 # need this so we fit in flash!
+debug = true
+lto = "thin"
+overflow-checks = true
+debug-assertions = true
+incremental = true
 
-
-# [patch.crates-io]
-# cortex-m-rt = { git = "https://github.com/rust-embedded/cortex-m.git", rev = "0.7.1", version = "0.7.1" }
-
-# [replace]
-# "lc3-isa:0.1.0" = { git = "https://github.com/ut-utp/prototype.git#staging"}
-# "lc3-traits:0.1.0" = { git = "https://github.com/ut-utp/prototype.git", branch = "staging", default-features = false, features = ["no_std"]  }
+[profile.release] # and also `profile.bench`
+opt-level = 3 # or "z"
+debug = true
+lto = "fat"
+overflow-checks = false
+debug-assertions = false
+incremental = false
+codegen-units = 1

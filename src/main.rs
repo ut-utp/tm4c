@@ -42,6 +42,17 @@
 #![no_std]
 #![no_main]
 
+#[cfg(not(all(target_arch = "arm", target_os = "none")))]
+compile_error!("
+
+    This crate only builds for `thumbv7em-none-eabihf`!
+
+    Please either pass `--target thumbv7em-none-eabihf` to `cargo` or
+    use one of the aliases (like `cargo r` to run) defined in `.cargo/config`.
+
+
+");
+
 extern crate panic_halt as _;
 extern crate tm4c123x_hal as hal;
 
