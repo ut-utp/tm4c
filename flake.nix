@@ -64,7 +64,7 @@
         # there (assuming Rosetta is installed: https://github.com/NixOS/nix/pull/4310).
         #
         # See: https://github.com/NixOS/nixpkgs/issues/147953
-        gdbPkgs = let
+        gdbPkgs' = let
           pkgs' = if pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64 then
             (import nixpkgs { system = "x86_64-darwin"; inherit overlays; })
           else
@@ -73,8 +73,29 @@
           [ pkgs'.gdb pkgs'.nur.repos.mic92.gdb-dashboard (gdb-tools pkgs') ]
         ;
 
+        # As per https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#embedded-development-setup
+        # on Linux we need to expose `gdb` as `gdb-multiarch`
+        # (to match other distros):
+        gdbPkgs = if pkgs.stdenv.isLinux then
+          let
+            baseGdb = builtins.head gdbPkgs';
+            gdbMultiarch = pkgs.stdenvNoCC.mkDerivation {
+              pname = "gdb-multiarch";
+              inherit (baseGdb) version meta;
+              nativeBuildInputs = with pkgs; [ makeWrapper ];
+              unpackPhase = "true";
+              installPhase = ''
+                mkdir -p $out/bin
+                makeWrapper ${baseGdb}/bin/gdb $out/bin/gdb-multiarch
+              '';
+            };
+          in
+          [gdbMultiarch] ++ gdbPkgs'
+        else
+          gdbPkgs';
+
         tm4c-svd-file = pkgs.fetchurl {
-          url = "https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/TexasInstruments/TM4C123GH6PM.svd";
+          url = "https://raw.githubusercontent.com/posborne/cmsis-svd/551849db7be8415b1acc19bcc7fbbb07e808a4bf/data/TexasInstruments/TM4C123GH6PM.svd";
           sha256 = "Vi0SL/0vmefGrsBzOE/comH+8PiUJOyd1wF03kaDf6o=";
         };
 

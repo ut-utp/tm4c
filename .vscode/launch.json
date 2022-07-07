@@ -8,6 +8,7 @@
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
+            "internalConsoleOptions": "openOnFirstSessionStart",
 
             "servertype": "openocd",
 
@@ -27,35 +28,27 @@
             // openocd server instead of the default ones on startup, launch,
             // and restart:
             "openOCDLaunchCommands": [
-                "init",
-                "halt",
-                "reset init",
-                "sleep 100",
-                "flash probe 0",
+                // "init",
+                // "halt",
+                // "reset init",
+                // "sleep 100",
+                // "flash probe 0",
             ],
             "overrideLaunchCommands": [
-                "monitor halt",
-                "monitor reset init",
-                "monitor flash write_image erase target/thumbv7em-none-eabihf/release/utp-tm4c",
-                "monitor sleep 100",
-                "monitor flash verify_image target/thumbv7em-none-eabihf/release/utp-tm4c",
-                "monitor reset init"
+                // "monitor halt",
+                // "monitor reset init",
+                // "monitor flash write_image erase target/thumbv7em-none-eabihf/release/utp-tm4c",
+                // "monitor sleep 100",
+                // "monitor flash verify_image target/thumbv7em-none-eabihf/release/utp-tm4c",
+                // "monitor reset init"
+                "load"
             ],
             "overrideRestartCommands": [
                 "monitor reset init",
             ],
 
-            // Use `gdb` instead of `arm-none-eabi-gdb`:
-            // Windows users will need to modify these paths, potentially:
-            "serverpath": "openocd",
-            "gdbPath": "gdb",
             "preLaunchCommands": ["source .gdbinit"],
             "showDevDebugOutput": "none",
-
-            // Use `llvm-objdump` and `llvm-nm`:
-            // Windows users will need to modify these paths, potentially:
-            "objdumpPath": "llvm-objdump",
-            "toolchainPrefix": "llvm-",
 
             // Build before launching!
             "preLaunchTask": "Build UTP TM4C",

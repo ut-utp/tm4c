@@ -5,7 +5,32 @@
     "settings": {
         "files.exclude": {
             "target": true
-        }
+        },
+
+        "cortex-debug": {
+            // Binary names match the install instructions here:
+            // https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#embedded-development-setup
+
+            "gdbPath": {
+                "windows": "gdb-multiarch.exe",
+                "osx": "gdb",             // `brew` does not offer a `gdb-multiarch`
+                "linux": "gdb-multiarch", // for Ubuntu and friends; flake.nix matches this
+            },
+            "openocdPath": {
+                "windows": "openocd.exe",
+                "osx": "openocd",
+                "linux": "openocd",
+            },
+            "objdumpPath": {
+                "windows": "llvm-objdump.exe",
+                "osx": "llvm-objdump",
+                "linux": "llvm-objdump",
+            },
+            // We want to use `llvm-nm`; this will be searched for "alongside" `objdump`.
+            "armToolchainPrefix": "llvm",
+
+            "showRTOS": false,
+        },
     },
     "extensions": {
         "recommendations": [
@@ -23,3 +48,10 @@
         ]
     }
 }
+
+// TODO: openocd.exe on windows in .gdbconfig, `gdb-multiarch` on linux, etc. for Cargo
+// TODO: test the gdb-multiarch nix wrapper on linux
+// TODO: find a way to continue on exit in GDB?
+// TODO: clean up launch.json (move to workspace)
+// TODO: check that the vscode debug problems are fixed...
+// TODO: lmtools binaries, etc.
