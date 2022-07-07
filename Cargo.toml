@@ -33,6 +33,7 @@ lc3-traits = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0
 tm4c123x-hal = { git = "https://github.com/ut-utp/tm4c-hal", branch = "utp-patches" , features=["rt"] }
 tm4c123x = "0.9.0"
 embedded-hal = "0.2.7"
+embedded-time = "0.12.1"
 
 # lc3-tm4c = { git = "https://github.com/ut-utp/tm4c", branch = "feat-non-generic-may-2020-snapshot" }
 

@@ -197,6 +197,11 @@ generic_gpio::io_pins_with_typestate! {
 }
 
 //Timer board Specifics
+extern crate embedded_time;
+use embedded_time as hal_time;
+use hal_time::duration::Milliseconds;
+use hal_time::fixed_point::FixedPoint;
+
 use tm4c123x_hal::timer::*;
 use tm4c123x_hal::time::*;
 
@@ -207,13 +212,15 @@ impl Into<Millis> for MillisU16 {
         self.0
     }
 }
-impl From<u16> for MillisU16{
-    fn from(val: u16) -> Self { MillisU16(u32::millis(val as u32)) }
+impl From<Milliseconds> for MillisU16{
+    fn from(val: Milliseconds) -> Self { 
+        MillisU16(u32::millis(val.integer()))
+    }
 }
 
-impl Into<u16> for MillisU16{
-    fn into(self) -> u16{
-        self.0.0 as u16
+impl Into<Milliseconds> for MillisU16{
+    fn into(self) -> Milliseconds{
+        Milliseconds::new(self.0.0)
     }
 
 }
