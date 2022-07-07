@@ -1,4 +1,7 @@
 
+# We have to step at least once before quitting or else we get into a bad state:
+stepi
+
 set print pretty on
 
 # print demangled symbols

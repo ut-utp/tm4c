@@ -1,14 +1,40 @@
 # The .gdbconfig / .gdbinit split exists because we support two flows
 # for debugging:
-#   1) dropping into a debugger with `cargo run` (see the runner set in `.cargo/config`)
+#   1) dropping into a debugger with `cargo run` (see the runner set in
+#      `.cargo/config`)
 #   2) debugging from an IDE (i.e. VSCode)
 #
-# For the former flow we want to start up an openocd instance ourselve (which is what this file does).
+# For the former flow we want to start up an openocd instance ourselves (which
+# is what this file does).
 # For the latter, we want to let the IDE manage the openocd instance.
 #
 # .gdbinit has the stuff that's common to both flows.
 
-target remote | openocd -c "source [find board/ek-tm4c123gxl.cfg]" -c "gdb_port pipe; log_output target/openocd.log"
+# When running on Windows we want to run `openocd.exe`.
+#
+# We want to figure out the host OS from within GDB.
+# The normal way to do this is to use `python` but the GDB distribution we're
+# using on Windows does not have Python support.
+#
+# So, we use this trick to capture the output of a shell command:
+# https://stackoverflow.com/questions/6885923/redirecting-storing-output-of-shell-into-gdb-variable
+
+set $_win = 1
+
+# This line will create a file on Windows and do nothing on *nix:
+shell echo # > .gdb_os
+# This line will create a file on *nix and do nothing on Windows:
+shell REM 2>/dev/null || :; echo 'set $_win = 0' > .gdb_os
+
+source .gdb_os
+
+if $_win == 1
+set $_openocd = "openocd.exe"
+else
+set $_openocd = "openocd"
+end
+
+eval "target remote | %s -c 'source [find board/ti_ek-tm4c123gxl.cfg]' -c 'gdb_port pipe; log_output target/openocd.log'", $_openocd
 
 # *try* to stop at the user entry point (it might be gone due to inlining)
 break main
@@ -16,8 +42,5 @@ break main
 monitor arm semihosting enable
 
 load
-
-# start the process
-stepi
 
 source .gdbinit

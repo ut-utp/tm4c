@@ -98,3 +98,6 @@ $RECYCLE.BIN/
 # For the Cortex Debug VSCode plugin:
 .vscode/.cortex-debug.*.state.json
 .vscode/settings.json
+
+# See .gdbconfig
+.gdb_os

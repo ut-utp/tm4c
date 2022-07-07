@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         crate: [ utp-tm4c ]
-        os: [ windows-latest, ubuntu-latest, macOS-latest ]
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
         rust:
           - stable
           - beta
