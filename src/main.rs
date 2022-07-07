@@ -62,6 +62,7 @@ mod generic_gpio;
 mod flash;
 mod paging;
 mod memory_trait_RAM_flash;
+mod tm4c_clock;
 
 use crate::flash::Flash_Unit;
 use crate::paging::RAM_Pages;
@@ -95,6 +96,7 @@ use lc3_device_support::{
     },
     peripherals::adc::generic_adc_unit as GenericAdc,
     peripherals::timer::generic_timer_unit as GenericTimer,
+    peripherals::clock::generic_clock_unit as GenericClock,
     util::Fifo,
 };
 
@@ -225,6 +227,21 @@ impl Into<Milliseconds> for MillisU16{
 
 }
 
+//Clock board Specifics
+// struct WrappingU16(u16);
+
+// impl From<u64> for WrappingU16{
+//     fn from(val: u64) -> Self { 
+//         unimplemented!()
+//     }
+// }
+
+// impl Into<u16> for WrappingU16{
+//     fn into(self) -> u16{
+//         unimplemented!()
+//     }
+
+// }
 
 #[entry]
 fn main() -> ! {
@@ -301,7 +318,9 @@ fn main() -> ! {
         //     },
         //     &sc.power_control,
         // );
-        let clock = ClockStub;
+        let tm4c_clock = tm4c_clock::Tm4cClock::new(p.WTIMER2, &sc.power_control, &clocks);
+        let mut utp_clock = GenericClock::<_, u64>::new(tm4c_clock);
+        let clock = utp_clock;
 
         PeripheralSet::new(
             gpio,
