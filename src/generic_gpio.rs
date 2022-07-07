@@ -623,19 +623,19 @@ macro_rules! io_pins_with_typestate {
         type Input = $input:ty;
         type Output = $output:ty;
 
-        => disabled = |$to_d:pat, $c_d:pat| $to_disabled:expr
-        => input    = |$to_i:pat, $c_i:pat| $to_input:expr
-        => output   = |$to_o:pat, $c_o:pat| $to_output:expr
+        => disabled = |$to_d:pat, $c_d:pat_param| $to_disabled:expr
+        => input    = |$to_i:pat, $c_i:pat_param| $to_input:expr
+        => output   = |$to_o:pat, $c_o:pat_param| $to_output:expr
 
         // $(
-        => enable interrupts  = |$int_en:pat,  $c_ie:pat| $int_enabled:expr
-        => disable interrupts = |$int_dis:pat, $c_di:pat| $int_disabled:expr
+        => enable interrupts  = |$int_en:pat,  $c_ie:pat_param| $int_enabled:expr
+        => disable interrupts = |$int_dis:pat, $c_di:pat_param| $int_disabled:expr
         // )?
 
         // TODO: make optional, support the interrupt based approach too!
         => interrupts {
-            check = |$inp_mode_chk:pat, $c_int_c:pat| $int_check:expr;
-            reset = |$inp_mode_res:pat, $c_int_r:pat| $int_reset:expr;
+            check = |$inp_mode_chk:pat, $c_int_c:pat_param| $int_check:expr;
+            reset = |$inp_mode_res:pat, $c_int_r:pat_param| $int_reset:expr;
         }
         // $(
 
