@@ -9,6 +9,17 @@ name = "utp-tm4c"
 version = "0.1.0"
 authors = ["UT UTP <ut.utp.group@gmail.com>"]
 edition = "2021"
+rust-version = "1.62.0"
+
+[lib]
+bench = false
+test = false
+
+[[bin]]
+name = "utp-tm4c"
+harness = false
+test = false
+bench = false
 
 # TODO: CI
 # TODO: README
