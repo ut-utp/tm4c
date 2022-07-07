@@ -19,7 +19,14 @@ compile_error!(
 "
 );
 
+pub const PANIC_DELIM: &str = "++++++++++";
+#[cfg(test)]
+pub const END_DELIM: &str = "==========";
+
 extern crate tm4c123x_hal as hal;
+
+use core::fmt::Write;
+
 use hal::gpio::{AlternateFunction, AF1, PushPull};
 use hal::gpio::gpioa::{PA1, PA0};
 use hal::prelude::*;
@@ -193,6 +200,20 @@ pub fn setup_uart(porta: PortA, u0: Uart0, pc: &PowerControl, clocks: &Clocks) -
     )
 }
 
+// TODO: do away with this once we update `core`.
+struct MutRefWrite<'w, W: embedded_hal::serial::Write<u8>>(&'w mut W);
+impl<'w, W: embedded_hal::serial::Write<u8>> embedded_hal::serial::Write<u8> for MutRefWrite<'w, W> {
+    type Error = W::Error;
+
+    fn write(&mut self, word: u8) -> nb::Result<(), Self::Error> {
+        self.0.write(word)
+    }
+
+    fn flush(&mut self) -> nb::Result<(), Self::Error> {
+        self.0.flush()
+    }
+}
+
 pub fn run<C: Control>(sim: &mut C, uart: Serial0) -> !
 where
     <C as Control>::EventFuture: Unpin,
@@ -202,6 +223,15 @@ where
     let dec = PostcardDecode::<RequestMessage, Cobs<Fifo<u8>>>::new();
 
     let (tx, rx) = uart.split();
+
+    let mut tx = panic_write::PanicHandler::new_with_hook(tx, |w, panic_info| {
+        // TODO: multi-plexing friendly hook!
+
+        writeln!(w, "\n{}", PANIC_DELIM).unwrap();
+        writeln!(w, "{panic_info}").unwrap();
+        writeln!(w, "{}", PANIC_DELIM).unwrap();
+    });
+    let tx = MutRefWrite(&mut *tx);
 
     let mut device = Device::<UartTransport<_, _>, _, RequestMessage, ResponseMessage, _, _>::new(
         enc,

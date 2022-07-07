@@ -1516,7 +1516,7 @@ dependencies = [
  "lc3-isa",
  "lc3-tm4c",
  "lc3-traits",
- "panic-halt",
+ "nb 1.0.0",
  "panic-write",
  "tm4c123x",
  "tm4c123x-hal",

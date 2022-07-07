@@ -21,6 +21,19 @@ harness = false
 test = false
 bench = false
 
+
+[[test]]
+name = "smoke"
+harness = false
+test = true
+bench = false
+
+[[example]]
+name = "serial"
+harness = false
+test = false
+bench = false
+
 # TODO: CI
 # TODO: README
 # TODO: MSRV
@@ -31,7 +44,7 @@ bench = false
 [dependencies]
 cortex-m-rt = { version = "0.6.15", features = ["device"] }
 cortex-m-semihosting = "0.5.0"
-panic-halt = "0.2.0"
+panic-write = { git = "https://github.com/rrbutani/panic-write.git" } # TODO: replace with crates.io
 
 # TODO: All of the below should use crates.io published version instead of git repos.
 lc3-device-support = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"] }

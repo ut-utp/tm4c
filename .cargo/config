@@ -29,6 +29,7 @@ xr = "bench --profile release --target thumbv7em-none-eabihf"
 
 r = "run --release --target thumbv7em-none-eabihf"
 b = "build --release --target thumbv7em-none-eabihf"
+ba = "b --all"
 t = "test --target thumbv7em-none-eabihf -- --test"
 tr = "test --target thumbv7em-none-eabihf --release -- --test"
 d = "run --profile dev --target thumbv7em-none-eabihf -- --debug"
