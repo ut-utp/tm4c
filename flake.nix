@@ -118,7 +118,13 @@
             (flip-link pkgs)
             lm4tools
             picocom
-          ] ++ gdbPkgs;
+          ] ++ gdbPkgs ++ [
+            # For `xtask`:
+            pkg-config # host serial stuff needs this
+            openssl    # reqwest needs this
+          ] ++ lib.optionals (pkgs.stdenv.isLinux) [
+            libudev    # host serial stuff, again
+          ];
           shellHook = ''
             LLVM_TOOLS_PREVIEW_BIN=$(echo ${llvm-tools-preview}/lib/rustlib/*/bin)
             export PATH="$PATH:$LLVM_TOOLS_PREVIEW_BIN"
