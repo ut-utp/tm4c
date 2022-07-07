@@ -3,6 +3,7 @@ members = [
     ".",
     "xtask",
 ]
+default-members = ["."]
 
 [package]
 name = "utp-tm4c"
