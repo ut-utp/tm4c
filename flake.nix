@@ -8,10 +8,11 @@
     nur.url          = github:nix-community/NUR;
   };
 
-  # TODO: cargo extensions
+  # TODO: cargo extensions (cargo-expand)
   # TODO: CI setup? (garnix)
   # TODO: expose targets, etc.
   # TODO: flip-link, probe-run, tests, etc.
+  # TODO: lm4flash!
 
   outputs = { self, nixpkgs, rust-overlay, flake-utils, nur }:
     flake-utils.lib.eachDefaultSystem (system:

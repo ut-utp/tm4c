@@ -121,8 +121,9 @@ import subprocess
 prog = gdb.objfiles()[0].filename
 
 # TODO: detect debug or release, etc.
-gdb.execute("shell cargo build --release")
+gdb.execute("shell cargo b")
 
-gdb.execute('monitor program "{}"'.format(prog))
+# gdb.execute('monitor program "{}"'.format(prog))
+gdb.execute('load')
 gdb.execute('reset')
 end
