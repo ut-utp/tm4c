@@ -31,6 +31,9 @@
 
             "showRTOS": false,
         },
+
+        // Not set in `.cargo/config` because of the xtask!
+        "rust-analyzer.cargo.target": "thumbv7em-none-eabihf",
     },
     "extensions": {
         "recommendations": [
@@ -46,7 +49,7 @@
             "jnoortheen.nix-ide",
             "mkhl.direnv"
         ]
-    }
+    },
 }
 
 // TODO: openocd.exe on windows in .gdbconfig, `gdb-multiarch` on linux, etc. for Cargo
