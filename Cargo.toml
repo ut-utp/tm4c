@@ -8,7 +8,7 @@ members = [
 name = "utp-tm4c"
 version = "0.1.0"
 authors = ["UT UTP <ut.utp.group@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # TODO: CI
 # TODO: README
@@ -21,7 +21,6 @@ edition = "2018"
 cortex-m-rt = { version = "0.6.15", features = ["device"] }
 cortex-m-semihosting = "0.5.0"
 panic-halt = "0.2.0"
-# panic-semihosting = "0.5.3"
 
 # TODO: All of the below should use crates.io published version instead of git repos.
 lc3-device-support = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"] }

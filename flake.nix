@@ -124,6 +124,9 @@
             openssl    # reqwest needs this
           ] ++ lib.optionals (pkgs.stdenv.isLinux) [
             libudev    # host serial stuff, again
+          ] ++ lib.optionals (pkgs.stdenv.isDarwin) [
+            darwin.apple_sdk.frameworks.IOKit
+            darwin.apple_sdk.frameworks.Security
           ];
           shellHook = ''
             LLVM_TOOLS_PREVIEW_BIN=$(echo ${llvm-tools-preview}/lib/rustlib/*/bin)
