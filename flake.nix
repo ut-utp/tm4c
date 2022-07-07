@@ -6,6 +6,8 @@
     rust-overlay.url = github:oxalica/rust-overlay;
     flake-utils.url  = github:numtide/flake-utils;
     nur.url          = github:nix-community/NUR;
+    # TODO: ditch this once this PR is merged: https://github.com/NixOS/nixpkgs/pull/175052
+    nixpkgs-with-lm4tools.url = github:rrbutani/nixpkgs/feature/lm4tools;
   };
 
   # TODO: cargo extensions (cargo-expand)
@@ -14,7 +16,7 @@
   # TODO: flip-link, probe-run, tests, etc.
   # TODO: lm4flash!
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, nur }:
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, nur, nixpkgs-with-lm4tools }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         # TODO: make a nixpkg of its own and upstream:
@@ -60,6 +62,9 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
+        lm4tools = (import nixpkgs-with-lm4tools {
+          inherit system;
+        }).lm4tools;
 
         # `gdb` is broken on ARM macOS so we'll fallback to using x86_64 GDB
         # there (assuming Rosetta is installed: https://github.com/NixOS/nix/pull/4310).
@@ -112,7 +117,18 @@
 
             cargo-bloat cargo-asm cargo-expand
             (flip-link pkgs)
-          ] ++ gdbPkgs;
+            lm4tools
+            picocom
+          ] ++ gdbPkgs ++ [
+            # For `xtask`:
+            pkg-config # host serial stuff needs this
+            openssl    # reqwest needs this
+          ] ++ lib.optionals (pkgs.stdenv.isLinux) [
+            libudev    # host serial stuff, again
+          ] ++ lib.optionals (pkgs.stdenv.isDarwin) [
+            darwin.apple_sdk.frameworks.IOKit
+            darwin.apple_sdk.frameworks.Security
+          ];
           shellHook = ''
             LLVM_TOOLS_PREVIEW_BIN=$(echo ${llvm-tools-preview}/lib/rustlib/*/bin)
             export PATH="$PATH:$LLVM_TOOLS_PREVIEW_BIN"

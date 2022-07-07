@@ -1,14 +1,44 @@
 [workspace]
 members = [
     ".",
-#     "xtask",
+    "xtask",
 ]
+default-members = ["."]
 
 [package]
 name = "utp-tm4c"
 version = "0.1.0"
 authors = ["UT UTP <ut.utp.group@gmail.com>"]
-edition = "2018"
+edition = "2021"
+rust-version = "1.62.0"
+
+[lib]
+bench = false
+test = false
+
+[[bin]]
+name = "utp-tm4c"
+harness = false
+test = false
+bench = false
+
+[[bench]]
+name = "speed"
+harness = false
+test = true
+bench = true
+
+[[test]]
+name = "smoke"
+harness = false
+test = true
+bench = false
+
+[[example]]
+name = "serial"
+harness = false
+test = false
+bench = false
 
 # TODO: CI
 # TODO: README
@@ -20,8 +50,7 @@ edition = "2018"
 [dependencies]
 cortex-m-rt = { version = "0.6.15", features = ["device"] }
 cortex-m-semihosting = "0.5.0"
-panic-halt = "0.2.0"
-# panic-semihosting = "0.5.3"
+panic-write = { git = "https://github.com/rrbutani/panic-write.git" } # TODO: replace with crates.io
 
 # TODO: All of the below should use crates.io published version instead of git repos.
 lc3-device-support = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"] }
@@ -29,51 +58,34 @@ lc3-baseline-sim = { git = "https://github.com/ut-utp/prototype.git", version = 
 lc3-isa = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"] }
 lc3-traits = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"]  }
 
-# tm4c123x-hal = { version = "0.9.0", features = ["rt"] }
 tm4c123x-hal = { git = "https://github.com/ut-utp/tm4c-hal", branch = "utp-patches" , features=["rt"] }
 tm4c123x = "0.9.0"
 embedded-hal = "0.2.7"
 embedded-time = "0.12.1"
+nb = "1"
 
-# lc3-tm4c = { git = "https://github.com/ut-utp/tm4c", branch = "feat-non-generic-may-2020-snapshot" }
+[dev-dependencies]
+ubench = { version = "0.1", git = "https://github.com/rrbutani/ubench", features = ["cortex-m"] } # TODO: replace with `crates.io`
 
-[profile.dev]
-lto = true
+[profile.dev] # and also `profile.test`
 opt-level = 1 # need this so we fit in flash!
+debug = true
+lto = "thin"
+overflow-checks = true
+debug-assertions = true
+incremental = true
 
-[profile.release]
-codegen-units = 1 # better optimizations
-debug = true # symbols are nice and they don't increase the size on Flash
-lto = "fat" # better optimizations
-opt-level = 3
-# panic = "abort"
-
-
-# :-(
-# https://github.com/rust-lang/cargo/issues/5478
-#
-# 'lc3-tm4c' has not updated yet..
-#
-# have to change the source so we do this silly workaround (note the two slashes)
-# [patch."https://github.com/ut-utp/prototype.git"]
-# lc3-isa = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
-# lc3-traits = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
-# lc3-baseline-sim = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
-# lc3-device-support = { git = "https://github.com/ut-utp//prototype", branch = "master", version = "0.1.0" }
+[profile.release] # and also `profile.bench`
+opt-level = 3 # or "z"
+debug = true
+lto = "fat"
+overflow-checks = false
+debug-assertions = false
+incremental = false
+codegen-units = 1
 
 [patch."https://github.com/ut-utp/prototype.git"]
 lc3-isa =            { path = "../core/isa", version = "0.1.0" }
 lc3-traits =         { path = "../core/traits", version = "0.1.0" }
 lc3-baseline-sim =   { path = "../core/baseline-sim", version = "0.1.0" }
 lc3-device-support = { path = "../core/device-support", version = "0.1.0" }
-
-# [patch."https://github.com/ut-utp/tm4c"]
-# lc3-tm4c = { path = "../tm4c-peripherals" }
-
-
-# [patch.crates-io]
-# cortex-m-rt = { git = "https://github.com/rust-embedded/cortex-m.git", rev = "0.7.1", version = "0.7.1" }
-
-# [replace]
-# "lc3-isa:0.1.0" = { git = "https://github.com/ut-utp/prototype.git#staging"}
-# "lc3-traits:0.1.0" = { git = "https://github.com/ut-utp/prototype.git", branch = "staging", default-features = false, features = ["no_std"]  }

@@ -1,12 +1,10 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-runner = "gdb -q -x .gdbconfig"
-# runner = "cargo run --manifest-path .cargo/xtask/Cargo.toml"
-
+runner = "cargo run -p xtask --bin xtask --"
 
 rustflags = [
   "-C", "link-arg=-Tlink.x",
 #  "-C", "linker=flip-link", # TODO
-  "-C", "force-frame-pointers=yes",
+#  "-C", "force-frame-pointers=yes",
 ]
 
 
@@ -17,25 +15,50 @@ rustflags = [
 #
 # But, it doesn't look like the feature above is headed towards stabilization
 # anytime soon and we don't want to tie ourselves to nightly so we stick with
-# this and stomach needing to be in the repo root to `cargo run`/`cargo flash`.
+# this and use aliases where possible to specify the target triple.
+#
+# See: https://github.com/ut-utp/tm4c/issues/6 for more details.
 [build]
-target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
+# target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
 
 [alias]
+# `x` uses `bench` because it seems to be the most versatile:
+# supports `--bin`, `--example`, `--test`, `--bench`
+x = "bench --profile dev --target thumbv7em-none-eabihf"
+xr = "bench --profile release --target thumbv7em-none-eabihf"
 
-# Normally `xtask`s live in the same workspace as the actual repositories but
-# TODO (target difference; need `default-target` or `forced-target` both of which require nightly which we don't want to necessiate)
-# other option is to encode the embedded target purely in the xtask or in aliases but this is undesirable because it breaks extensions (i.e. cargo bloat)
+r = "run --release --target thumbv7em-none-eabihf"
+b = "build --release --target thumbv7em-none-eabihf"
+ba = "b --all-targets"
+t = "test --target thumbv7em-none-eabihf -- --test"
+tr = "test --target thumbv7em-none-eabihf --release -- --test"
+d = "run --profile dev --target thumbv7em-none-eabihf -- --debug"
+f = "r -- --flash"
+ben = "bench --target thumbv7em-none-eabihf"
+ben-rep = "bench --target thumbv7em-none-eabihf -- --report"
+bench-report = "ben-rep"
+
+# Unfortunately things like:
+# `cargo f --bin foo`
+# `cargo d --test foo`
+# `cargo t --test foo`
 #
-# the downside to this option is that it requires you to be in the root of the repo because of the relative path here.
-xtask = "-q run --manifest-path .cargo/xtask/Cargo.toml --"
+# don't work; instead you have to do:
+# `cargo x --bin foo -- --flash`
+# `cargo x --test foo -- --debug`
+# `cargo ben --test foo -- --test`
+#
+# In general:
+# `r` supports `--bin`, `--example`
+# `ben` supports `--test`, `--bench`, `--bin`, `--example`
+# because `run` and `debug` modes can be inferred from context (or
+# in the case of `debug`: includes a `cargo` provided flag)
+#
+# This is not true for `flash`, `test`, and `debug` which is why
+# there's a discrepancy.
 
-b = "build --release"
-r = "run --release"
-f = "xtask flash --release"
-
-debug = "r"
 flash = "f"
+debug = "d"
 
 # Notes:
 # call stack: cargo +nightly call-stack  --bin utp-tm4c | dot -Tpng > out.png

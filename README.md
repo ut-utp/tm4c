@@ -14,7 +14,7 @@ To be used in conjuction with the [UTP TUI](//github.com/ut-utp/tui.git).
 
 #### First: Flash your TM4C
 
-You can grab a TM4C image (a `.bin` file; TODO: issue #7) from the [releases page](https://github.com/ut-utp/tm4c/releases).
+You can grab a TM4C image (a `.bin` file; TODO: issue #5) from the [releases page](https://github.com/ut-utp/tm4c/releases).
 
 You'll need to grab `lm4flash` and potentially install a driver in order to flash your TM4C. [This page](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#for-the-tm4c) has instructions on how to do so.
 
@@ -26,7 +26,7 @@ On macOS and Linux:
 On Windows:
   - `lm4flash.exe -v utp-tm4c.bin`
 
-At this point, if flashing the board was successful, your on-board LED should be blinking (TODO: issue #6).
+At this point, if flashing the board was successful, your on-board LED should be blinking (TODO: issue #4).
 
 (TODO: ulimately we want to switch to probe-rs and have the TUI handle this, actually...)
 (See: ut-utp/tui#11)
@@ -64,22 +64,41 @@ Follow [these instructions](https://github.com/ut-utp/.github/wiki/Dev-Environme
 
 ### Doing Development
 
+TODO: VSCode aliases
+TODO: targets for all of these..
+
 To build the project:
-  - `cargo b` (`cargo.exe b` on Windows)
+  - `cargo b` to build just the main program
+  - `cargo ba` to build everything
 
 `rustup` will automatically fetch the [appropriate toolchain](rust-toolchain.toml) and the tools needed to build for ARM.
 
-To run the project (launches a debugger):
-  - `cargo r` (`cargo.exe r` on Windows)
+To flash your board (without attaching a debugger):
+  - `cargo f`
+    + This uses `lm4flash` and attempts to grab `lm4flash` binaries from [here](https://github.com/ut-utp/.github/wiki/lm4flash-Binaries) if you do not already have it installed locally.
+
+To run a program that has console output:
+  - `cargo r --bin <bin name>` for binaries
+  - `cargo r --example <example name>` for examples
+  - this will drop you into `picocom` if you have it installed (TODO)
+
+
+To debug the project (launches a debugger):
+  - `cargo d`
     + This uses `gdb` as a "runner" as specified in [`.cargo/config`](.cargo/config).
     + If you're not using `nix`, make sure you have installed GDB, OpenOCD, and the LLVM binutils as [described in the setup guide](https://github.com/ut-utp/.github/wiki/Dev-Environment-Setup#embedded-development-setup).
     + You may need to [configure GDB](https://sourceware.org/gdb/onlinedocs/gdb/Auto_002dloading-safe-path.html) to allow autoloading [`.gdbinit`](.gdbinit) (optional).
 
 > 🚨 NOTE 🚨: Be sure to run `continue` before exiting GDB! If you do not do this your board will enter a bad state and will need to be power cycled before you can attach a debugger to it again.
 
-To flash your board (without attaching a debugger):
-  - `cargo flash` (`cargo.exe flash` on Windows)
-    + This uses `lm4flash` and attempts to grab `lm4flash` binaries from [here](https://github.com/ut-utp/.github/wiki/lm4flash-Binaries) if you do not already have it installed locally.
+To run the tests:
+  - `cargo t` to run all tests (with assertions)
+  - `cargo tr` to run all tests in release mode
+  - `cargo test --test <test name> --target thumbv7em-none-eabihf -- --test` to run a specific test (add `--release` before the `--` for release mode)
+
+To run the benchmarks:
+  - `cargo ben` to run all the benchmarks
+  - `cargo ben --bench <benchmark name>` to run a specific benchmark
 
 #### VSCode Support
 
