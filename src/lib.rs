@@ -16,11 +16,9 @@ compile_error!(
     use one of the aliases (like `cargo r` to run) defined in `.cargo/config`.
 
 
-"
-);
+");
 
 pub const PANIC_DELIM: &str = "++++++++++";
-#[cfg(test)]
 pub const END_DELIM: &str = "==========";
 
 extern crate tm4c123x_hal as hal;
