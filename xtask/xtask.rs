@@ -422,13 +422,14 @@ impl Mode {
                 "gdb-multiarch"
             };
 
-            let err = exec::Command::new(gdb_exec_name)
-                .arg("-q")
-                .arg("-x")
-                .arg(".gdbconfig")
-                .arg(bin)
-                .exec();
-            panic!("{err}");
+            // let err = exec::Command::new(gdb_exec_name)
+            //     .arg("-q")
+            //     .arg("-x")
+            //     .arg(".gdbconfig")
+            //     .arg(bin)
+            //     .exec();
+            // panic!("{err}");
+            todo!();
         }
 
         // TODO: make timeout adjustable (env var, flag)
