@@ -132,7 +132,7 @@ generic_gpio::io_pins_with_typestate! {
         /// ...
         PB1 as G21,
         /// ...
-        PC3 as G22,
+        PA7 as G22,
         /// ...
         PB4 as G23,
     } as Tm4cGpio;
@@ -239,7 +239,7 @@ pub fn setup(
 
         let gpio = Tm4cGpio::new(porta.pa2, porta.pa3, porta.pa4, portb.pb2, portb.pb3, portb.pb6, portb.pb7, portc.pc4,
                                  portc.pc5, portc.pc6, portc.pc7, portd.pd2, portd.pd3, portd.pd6, portf.pf0.unlock(&mut portf.control), portf.pf1,
-                                 portf.pf2, portf.pf3, portf.pf4, portb.pb5, portb.pb0, portb.pb1, portc.pc3.unlock(&mut portc.control), portb.pb4);
+                                 portf.pf2, portf.pf3, portf.pf4, portb.pb5, portb.pb0, portb.pb1, porta.pa7, portb.pb4);
 
 
         let pe3 = porte.pe3.into_analog_state();
