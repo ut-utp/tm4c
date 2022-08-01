@@ -55,6 +55,22 @@ macro_rules! pin_proxy {
             (G5 to g5),
             (G6 to g6),
             (G7 to g7),
+            (G8 to g8),
+            (G9 to g9),
+            (G10 to g10),
+            (G11 to g11),
+            (G12 to g12),
+            (G13 to g13),
+            (G14 to g14),
+            (G15 to g15),
+            (G16 to g16),
+            (G17 to g17),
+            (G18 to g18),
+            (G19 to g19),
+            (G20 to g20),
+            (G21 to g21),
+            (G22 to g22),
+            (G23 to g23),
             in ($($self.)?$field):
                 ($binding => $e)
         )
@@ -73,7 +89,9 @@ macro_rules! pin_proxy {
 }
 
 // TODO: give this a better name...
-pub trait InterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>
+pub trait InterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7,
+                            G8, G9, G10, G11, G12, G13, G14, G15,
+                            G16, G17, G18, G19, G20, G21, G22, G23, Ctx>
 where
     G0: Interrupts + IoPin<Ctx = Ctx>,
     G1: Interrupts + IoPin<Ctx = Ctx>,
@@ -83,15 +101,31 @@ where
     G5: Interrupts + IoPin<Ctx = Ctx>,
     G6: Interrupts + IoPin<Ctx = Ctx>,
     G7: Interrupts + IoPin<Ctx = Ctx>,
+    G8: Interrupts + IoPin<Ctx = Ctx>,
+    G9: Interrupts + IoPin<Ctx = Ctx>,
+    G10: Interrupts + IoPin<Ctx = Ctx>,
+    G11: Interrupts + IoPin<Ctx = Ctx>,
+    G12: Interrupts + IoPin<Ctx = Ctx>,
+    G13: Interrupts + IoPin<Ctx = Ctx>,
+    G14: Interrupts + IoPin<Ctx = Ctx>,
+    G15: Interrupts + IoPin<Ctx = Ctx>,
+    G16: Interrupts + IoPin<Ctx = Ctx>,
+    G17: Interrupts + IoPin<Ctx = Ctx>,
+    G18: Interrupts + IoPin<Ctx = Ctx>,
+    G19: Interrupts + IoPin<Ctx = Ctx>,
+    G20: Interrupts + IoPin<Ctx = Ctx>,
+    G21: Interrupts + IoPin<Ctx = Ctx>,
+    G22: Interrupts + IoPin<Ctx = Ctx>,
+    G23: Interrupts + IoPin<Ctx = Ctx>,
 {
-    fn interrupt_pending(&self, pin: lc3_gp::GpioPin, pins: &Pins<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>, ctx: &Ctx) -> bool;
+    fn interrupt_pending(&self, pin: lc3_gp::GpioPin, pins: &Pins<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>, ctx: &Ctx) -> bool;
 
-    fn clear_interrupt(&mut self, pin: lc3_gp::GpioPin, pins: &mut Pins<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>, ctx: &mut Ctx);
+    fn clear_interrupt(&mut self, pin: lc3_gp::GpioPin, pins: &mut Pins<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>, ctx: &mut Ctx);
 }
 
 pub struct FlagBasedInterrupts<'i>(&'i GpioPinArr<AtomicBool>);
 
-impl<'i, G0, G1, G2, G3, G4, G5, G6, G7, Ctx> InterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7, Ctx> for FlagBasedInterrupts<'i>
+impl<'i, G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx> InterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx> for FlagBasedInterrupts<'i>
 where
     G0: Interrupts + IoPin<Ctx = Ctx>,
     G1: Interrupts + IoPin<Ctx = Ctx>,
@@ -101,17 +135,33 @@ where
     G5: Interrupts + IoPin<Ctx = Ctx>,
     G6: Interrupts + IoPin<Ctx = Ctx>,
     G7: Interrupts + IoPin<Ctx = Ctx>,
+    G8: Interrupts + IoPin<Ctx = Ctx>,
+    G9: Interrupts + IoPin<Ctx = Ctx>,
+    G10: Interrupts + IoPin<Ctx = Ctx>,
+    G11: Interrupts + IoPin<Ctx = Ctx>,
+    G12: Interrupts + IoPin<Ctx = Ctx>,
+    G13: Interrupts + IoPin<Ctx = Ctx>,
+    G14: Interrupts + IoPin<Ctx = Ctx>,
+    G15: Interrupts + IoPin<Ctx = Ctx>,
+    G16: Interrupts + IoPin<Ctx = Ctx>,
+    G17: Interrupts + IoPin<Ctx = Ctx>,
+    G18: Interrupts + IoPin<Ctx = Ctx>,
+    G19: Interrupts + IoPin<Ctx = Ctx>,
+    G20: Interrupts + IoPin<Ctx = Ctx>,
+    G21: Interrupts + IoPin<Ctx = Ctx>,
+    G22: Interrupts + IoPin<Ctx = Ctx>,
+    G23: Interrupts + IoPin<Ctx = Ctx>,
 {
-    fn interrupt_pending(&self, pin: lc3_gp::GpioPin, _pins: &Pins<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>, _ctx: &Ctx) -> bool {
+    fn interrupt_pending(&self, pin: lc3_gp::GpioPin, _pins: &Pins<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>, _ctx: &Ctx) -> bool {
         self.0[pin].load(Ordering::SeqCst)
     }
 
-    fn clear_interrupt(&mut self, pin: lc3_gp::GpioPin, _pins: &mut Pins<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>, _ctx: &mut Ctx) {
+    fn clear_interrupt(&mut self, pin: lc3_gp::GpioPin, _pins: &mut Pins<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>, _ctx: &mut Ctx) {
         self.0[pin].store(false, Ordering::SeqCst)
     }
 }
 
-pub struct SelfContainedInterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>(PhantomData<(G0, G1, G2, G3, G4, G5, G6, G7, Ctx)>)
+pub struct SelfContainedInterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>(PhantomData<(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx)>)
 where
     G0: PollForInterrupts + IoPin<Ctx = Ctx>,
     G1: PollForInterrupts + IoPin<Ctx = Ctx>,
@@ -120,9 +170,26 @@ where
     G4: PollForInterrupts + IoPin<Ctx = Ctx>,
     G5: PollForInterrupts + IoPin<Ctx = Ctx>,
     G6: PollForInterrupts + IoPin<Ctx = Ctx>,
-    G7: PollForInterrupts + IoPin<Ctx = Ctx>;
+    G7: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G8: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G9: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G10: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G11: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G12: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G13: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G14: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G15: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G16: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G17: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G18: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G19: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G20: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G21: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G23: PollForInterrupts + IoPin<Ctx = Ctx>,
+    G23: PollForInterrupts + IoPin<Ctx = Ctx>;
 
-impl<A, B, C, D, E, F, G, H, CC> Default for SelfContainedInterruptSolution<A, B, C, D, E, F, G, H, CC>
+
+impl<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC> Default for SelfContainedInterruptSolution<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC>
 where
     A: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
     B: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
@@ -132,6 +199,23 @@ where
     F: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
     G: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
     H: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    I: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    J: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    K: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    L: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    M: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    N: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    O: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    P: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    Q: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    R: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    S: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    T: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    U: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    V: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    W: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    X: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+
 {
     fn default() -> Self {
         Self(Default::default())
@@ -143,7 +227,7 @@ pub trait PollForInterrupts: IoPin {
     fn clear_interrupt(p: &mut Self::Input, ctx: &mut Self::Ctx);
 }
 
-impl<A, B, C, D, E, F, G, H, CC> InterruptSolution<A, B, C, D, E, F, G, H, CC> for SelfContainedInterruptSolution<A, B, C, D, E, F, G, H, CC>
+impl<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC> InterruptSolution<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC> for SelfContainedInterruptSolution<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC>
 where
     A: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
     B: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
@@ -153,17 +237,33 @@ where
     F: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
     G: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
     H: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    I: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    J: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    K: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    L: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    M: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    N: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    O: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    P: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    Q: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    R: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    S: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    T: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    U: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    V: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    W: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
+    X: PollForInterrupts + Interrupts + IoPin<Ctx = CC>,
 {
-    fn interrupt_pending(&self, pin: lc3_gp::GpioPin, pins: &Pins<A, B, C, D, E, F, G, H, CC>, ctx: &CC) -> bool {
+    fn interrupt_pending(&self, pin: lc3_gp::GpioPin, pins: &Pins<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC>, ctx: &CC) -> bool {
         pin_proxy!(pins[pin] as ref p => p.interrupt_pending(ctx))
     }
 
-    fn clear_interrupt(&mut self, pin: lc3_gp::GpioPin, pins: &mut Pins<A, B, C, D, E, F, G, H, CC>, ctx: &mut CC) {
+    fn clear_interrupt(&mut self, pin: lc3_gp::GpioPin, pins: &mut Pins<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC>, ctx: &mut CC) {
         pin_proxy!(pins[pin] as ref mut p => p.clear_interrupt(ctx))
     }
 }
 
-pub struct Pins<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>
+pub struct Pins<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>
 where
     G0: Interrupts + IoPin<Ctx = Ctx>,
     G1: Interrupts + IoPin<Ctx = Ctx>,
@@ -173,6 +273,22 @@ where
     G5: Interrupts + IoPin<Ctx = Ctx>,
     G6: Interrupts + IoPin<Ctx = Ctx>,
     G7: Interrupts + IoPin<Ctx = Ctx>,
+    G8: Interrupts + IoPin<Ctx = Ctx>,
+    G9: Interrupts + IoPin<Ctx = Ctx>,
+    G10: Interrupts + IoPin<Ctx = Ctx>,
+    G11: Interrupts + IoPin<Ctx = Ctx>,
+    G12: Interrupts + IoPin<Ctx = Ctx>,
+    G13: Interrupts + IoPin<Ctx = Ctx>,
+    G14: Interrupts + IoPin<Ctx = Ctx>,
+    G15: Interrupts + IoPin<Ctx = Ctx>,
+    G16: Interrupts + IoPin<Ctx = Ctx>,
+    G17: Interrupts + IoPin<Ctx = Ctx>,
+    G18: Interrupts + IoPin<Ctx = Ctx>,
+    G19: Interrupts + IoPin<Ctx = Ctx>,
+    G20: Interrupts + IoPin<Ctx = Ctx>,
+    G21: Interrupts + IoPin<Ctx = Ctx>,
+    G22: Interrupts + IoPin<Ctx = Ctx>,
+    G23: Interrupts + IoPin<Ctx = Ctx>,
 {
     g0: Pin<G0>,
     g1: Pin<G1>,
@@ -182,6 +298,22 @@ where
     g5: Pin<G5>,
     g6: Pin<G6>,
     g7: Pin<G7>,
+    g8: Pin<G8>,
+    g9: Pin<G9>,
+    g10: Pin<G10>,
+    g11: Pin<G11>,
+    g12: Pin<G12>,
+    g13: Pin<G13>,
+    g14: Pin<G14>,
+    g15: Pin<G15>,
+    g16: Pin<G16>,
+    g17: Pin<G17>,
+    g18: Pin<G18>,
+    g19: Pin<G19>,
+    g20: Pin<G20>,
+    g21: Pin<G21>,
+    g22: Pin<G22>,
+    g23: Pin<G23>,
 }
 
 pub struct Gpio<
@@ -194,15 +326,31 @@ pub struct Gpio<
     G5: Interrupts + IoPin<Ctx = Ctx>,
     G6: Interrupts + IoPin<Ctx = Ctx>,
     G7: Interrupts + IoPin<Ctx = Ctx>,
-    I: InterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>,
+    G8: Interrupts + IoPin<Ctx = Ctx>,
+    G9: Interrupts + IoPin<Ctx = Ctx>,
+    G10: Interrupts + IoPin<Ctx = Ctx>,
+    G11: Interrupts + IoPin<Ctx = Ctx>,
+    G12: Interrupts + IoPin<Ctx = Ctx>,
+    G13: Interrupts + IoPin<Ctx = Ctx>,
+    G14: Interrupts + IoPin<Ctx = Ctx>,
+    G15: Interrupts + IoPin<Ctx = Ctx>,
+    G16: Interrupts + IoPin<Ctx = Ctx>,
+    G17: Interrupts + IoPin<Ctx = Ctx>,
+    G18: Interrupts + IoPin<Ctx = Ctx>,
+    G19: Interrupts + IoPin<Ctx = Ctx>,
+    G20: Interrupts + IoPin<Ctx = Ctx>,
+    G21: Interrupts + IoPin<Ctx = Ctx>,
+    G22: Interrupts + IoPin<Ctx = Ctx>,
+    G23: Interrupts + IoPin<Ctx = Ctx>,
+    I: InterruptSolution<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>,
     Ctx = (),
 > {
-    pins: Pins<G0, G1, G2, G3, G4, G5, G6, G7, Ctx>,
+    pins: Pins<G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, G20, G21, G22, G23, Ctx>,
     interrupt_solution: I,
     ctx: OwnedOrMut<'c, Ctx>,
 }
 
-impl<'c, 'i, A, B, C, D, E, F, G, H, CC> Gpio<'c, A, B, C, D, E, F, G, H, FlagBasedInterrupts<'i>, CC>
+impl<'c, 'i, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC> Gpio<'c, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, FlagBasedInterrupts<'i>, CC>
 where
     A: Interrupts + IoPin<Ctx = CC>,
     B: Interrupts + IoPin<Ctx = CC>,
@@ -212,17 +360,49 @@ where
     F: Interrupts + IoPin<Ctx = CC>,
     G: Interrupts + IoPin<Ctx = CC>,
     H: Interrupts + IoPin<Ctx = CC>,
+    I: Interrupts + IoPin<Ctx = CC>,
+    J: Interrupts + IoPin<Ctx = CC>,
+    K: Interrupts + IoPin<Ctx = CC>,
+    L: Interrupts + IoPin<Ctx = CC>,
+    M: Interrupts + IoPin<Ctx = CC>,
+    N: Interrupts + IoPin<Ctx = CC>,
+    O: Interrupts + IoPin<Ctx = CC>,
+    P: Interrupts + IoPin<Ctx = CC>,
+    Q: Interrupts + IoPin<Ctx = CC>,
+    R: Interrupts + IoPin<Ctx = CC>,
+    S: Interrupts + IoPin<Ctx = CC>,
+    T: Interrupts + IoPin<Ctx = CC>,
+    U: Interrupts + IoPin<Ctx = CC>,
+    V: Interrupts + IoPin<Ctx = CC>,
+    W: Interrupts + IoPin<Ctx = CC>,
+    X: Interrupts + IoPin<Ctx = CC>,
 {
     #[allow(clippy::too_many_arguments)]
     pub fn new_with_context(
-        g0: A::Disabled,
-        g1: B::Disabled,
-        g2: C::Disabled,
-        g3: D::Disabled,
-        g4: E::Disabled,
-        g5: F::Disabled,
-        g6: G::Disabled,
-        g7: H::Disabled,
+            g0: A::Disabled,
+            g1: B::Disabled,
+            g2: C::Disabled,
+            g3: D::Disabled,
+            g4: E::Disabled,
+            g5: F::Disabled,
+            g6: G::Disabled,
+            g7: H::Disabled,
+            g8: I::Disabled,
+            g9: J::Disabled,
+            g10: K::Disabled,
+            g11: L::Disabled,
+            g12: M::Disabled,
+            g13: N::Disabled,
+            g14: O::Disabled,
+            g15: P::Disabled,
+            g16: Q::Disabled,
+            g17: R::Disabled,
+            g18: S::Disabled,
+            g19: T::Disabled,
+            g20: U::Disabled,
+            g21: V::Disabled,
+            g22: W::Disabled,
+            g23: X::Disabled,
         interrupt_flags: &'i GpioPinArr<AtomicBool>,
         ctx: impl Into<OwnedOrMut<'c, CC>>,
     ) -> Self {
@@ -237,6 +417,22 @@ where
                 g5: D(g5),
                 g6: D(g6),
                 g7: D(g7),
+                g8: D(g8),
+                g9: D(g9),
+                g10: D(g10),
+                g11: D(g11),
+                g12: D(g12),
+                g13: D(g13),
+                g14: D(g14),
+                g15: D(g15),
+                g16: D(g16),
+                g17: D(g17),
+                g18: D(g18),
+                g19: D(g19),
+                g20: D(g20),
+                g21: D(g21),
+                g22: D(g22),
+                g23: D(g23),
             },
             interrupt_solution: FlagBasedInterrupts(interrupt_flags),
             ctx: ctx.into(),
@@ -244,7 +440,7 @@ where
     }
 }
 
-impl<'c, 'i, A, B, C, D, E, F, G, H> Gpio<'c, A, B, C, D, E, F, G, H, FlagBasedInterrupts<'i>, ()>
+impl<'c, 'i, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X> Gpio<'c, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, FlagBasedInterrupts<'i>, ()>
 where
     A: Interrupts + IoPin<Ctx = ()>,
     B: Interrupts + IoPin<Ctx = ()>,
@@ -254,27 +450,61 @@ where
     F: Interrupts + IoPin<Ctx = ()>,
     G: Interrupts + IoPin<Ctx = ()>,
     H: Interrupts + IoPin<Ctx = ()>,
+    I: Interrupts + IoPin<Ctx = ()>,
+    J: Interrupts + IoPin<Ctx = ()>,
+    K: Interrupts + IoPin<Ctx = ()>,
+    L: Interrupts + IoPin<Ctx = ()>,
+    M: Interrupts + IoPin<Ctx = ()>,
+    N: Interrupts + IoPin<Ctx = ()>,
+    O: Interrupts + IoPin<Ctx = ()>,
+    P: Interrupts + IoPin<Ctx = ()>,
+    Q: Interrupts + IoPin<Ctx = ()>,
+    R: Interrupts + IoPin<Ctx = ()>,
+    S: Interrupts + IoPin<Ctx = ()>,
+    T: Interrupts + IoPin<Ctx = ()>,
+    U: Interrupts + IoPin<Ctx = ()>,
+    V: Interrupts + IoPin<Ctx = ()>,
+    W: Interrupts + IoPin<Ctx = ()>,
+    X: Interrupts + IoPin<Ctx = ()>,
 {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        g0: A::Disabled,
-        g1: B::Disabled,
-        g2: C::Disabled,
-        g3: D::Disabled,
-        g4: E::Disabled,
-        g5: F::Disabled,
-        g6: G::Disabled,
-        g7: H::Disabled,
+            g0: A::Disabled,
+            g1: B::Disabled,
+            g2: C::Disabled,
+            g3: D::Disabled,
+            g4: E::Disabled,
+            g5: F::Disabled,
+            g6: G::Disabled,
+            g7: H::Disabled,
+            g8: I::Disabled,
+            g9: J::Disabled,
+            g10: K::Disabled,
+            g11: L::Disabled,
+            g12: M::Disabled,
+            g13: N::Disabled,
+            g14: O::Disabled,
+            g15: P::Disabled,
+            g16: Q::Disabled,
+            g17: R::Disabled,
+            g18: S::Disabled,
+            g19: T::Disabled,
+            g20: U::Disabled,
+            g21: V::Disabled,
+            g22: W::Disabled,
+            g23: X::Disabled,
         interrupt_flags: &'i GpioPinArr<AtomicBool>
     ) -> Self {
-        Self::new_with_context(g0, g1, g2, g3, g4, g5, g6, g7, interrupt_flags, ())
+        Self::new_with_context(g0, g1, g2, g3, g4, g5, g6, g7,
+                               g8, g9, g10, g11, g12, g13, g14, g15,
+                               g16, g17, g18, g19, g20, g21, g22, g23, interrupt_flags, ())
     }
 }
 
 mod other_interrupt_solution {
     use super::*;
 
-    impl<'c, A, B, C, D, E, F, G, H, I, CC> Gpio<'c, A, B, C, D, E, F, G, H, I, CC>
+    impl<'c, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, CC> Gpio<'c, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, CC>
     where
         A: Interrupts + IoPin<Ctx = CC>,
         B: Interrupts + IoPin<Ctx = CC>,
@@ -284,7 +514,23 @@ mod other_interrupt_solution {
         F: Interrupts + IoPin<Ctx = CC>,
         G: Interrupts + IoPin<Ctx = CC>,
         H: Interrupts + IoPin<Ctx = CC>,
-        I: InterruptSolution<A, B, C, D, E, F, G, H, CC> + Default,
+        I: Interrupts + IoPin<Ctx = CC>,
+        J: Interrupts + IoPin<Ctx = CC>,
+        K: Interrupts + IoPin<Ctx = CC>,
+        L: Interrupts + IoPin<Ctx = CC>,
+        M: Interrupts + IoPin<Ctx = CC>,
+        N: Interrupts + IoPin<Ctx = CC>,
+        O: Interrupts + IoPin<Ctx = CC>,
+        P: Interrupts + IoPin<Ctx = CC>,
+        Q: Interrupts + IoPin<Ctx = CC>,
+        R: Interrupts + IoPin<Ctx = CC>,
+        S: Interrupts + IoPin<Ctx = CC>,
+        T: Interrupts + IoPin<Ctx = CC>,
+        U: Interrupts + IoPin<Ctx = CC>,
+        V: Interrupts + IoPin<Ctx = CC>,
+        W: Interrupts + IoPin<Ctx = CC>,
+        X: Interrupts + IoPin<Ctx = CC>,
+        Y: InterruptSolution<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC> + Default,
     {
         #[allow(clippy::too_many_arguments)]
         pub fn new_with_context(
@@ -296,6 +542,22 @@ mod other_interrupt_solution {
             g5: F::Disabled,
             g6: G::Disabled,
             g7: H::Disabled,
+            g8: I::Disabled,
+            g9: J::Disabled,
+            g10: K::Disabled,
+            g11: L::Disabled,
+            g12: M::Disabled,
+            g13: N::Disabled,
+            g14: O::Disabled,
+            g15: P::Disabled,
+            g16: Q::Disabled,
+            g17: R::Disabled,
+            g18: S::Disabled,
+            g19: T::Disabled,
+            g20: U::Disabled,
+            g21: V::Disabled,
+            g22: W::Disabled,
+            g23: X::Disabled,
             ctx: impl Into<OwnedOrMut<'c, CC>>,
         ) -> Self {
             use Pin::Disabled as D;
@@ -309,6 +571,22 @@ mod other_interrupt_solution {
                     g5: D(g5),
                     g6: D(g6),
                     g7: D(g7),
+                    g8: D(g8),
+                    g9: D(g9),
+                    g10: D(g10),
+                    g11: D(g11),
+                    g12: D(g12),
+                    g13: D(g13),
+                    g14: D(g14),
+                    g15: D(g15),
+                    g16: D(g16),
+                    g17: D(g17),
+                    g18: D(g18),
+                    g19: D(g19),
+                    g20: D(g20),
+                    g21: D(g21),
+                    g22: D(g22),
+                    g23: D(g23),
                 },
                 interrupt_solution: Default::default(),
                 ctx: ctx.into(),
@@ -316,7 +594,7 @@ mod other_interrupt_solution {
         }
     }
 
-    impl<'c, A, B, C, D, E, F, G, H, I> Gpio<'c, A, B, C, D, E, F, G, H, I, ()>
+    impl<'c, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y> Gpio<'c, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, ()>
     where
         A: Interrupts + IoPin<Ctx = ()>,
         B: Interrupts + IoPin<Ctx = ()>,
@@ -326,7 +604,23 @@ mod other_interrupt_solution {
         F: Interrupts + IoPin<Ctx = ()>,
         G: Interrupts + IoPin<Ctx = ()>,
         H: Interrupts + IoPin<Ctx = ()>,
-        I: InterruptSolution<A, B, C, D, E, F, G, H, ()> + Default,
+        I: Interrupts + IoPin<Ctx = ()>,
+        J: Interrupts + IoPin<Ctx = ()>,
+        K: Interrupts + IoPin<Ctx = ()>,
+        L: Interrupts + IoPin<Ctx = ()>,
+        M: Interrupts + IoPin<Ctx = ()>,
+        N: Interrupts + IoPin<Ctx = ()>,
+        O: Interrupts + IoPin<Ctx = ()>,
+        P: Interrupts + IoPin<Ctx = ()>,
+        Q: Interrupts + IoPin<Ctx = ()>,
+        R: Interrupts + IoPin<Ctx = ()>,
+        S: Interrupts + IoPin<Ctx = ()>,
+        T: Interrupts + IoPin<Ctx = ()>,
+        U: Interrupts + IoPin<Ctx = ()>,
+        V: Interrupts + IoPin<Ctx = ()>,
+        W: Interrupts + IoPin<Ctx = ()>,
+        X: Interrupts + IoPin<Ctx = ()>,
+        Y: InterruptSolution<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, ()> + Default,
     {
         #[allow(clippy::too_many_arguments)]
         pub fn new(
@@ -338,8 +632,26 @@ mod other_interrupt_solution {
             g5: F::Disabled,
             g6: G::Disabled,
             g7: H::Disabled,
+            g8: I::Disabled,
+            g9: J::Disabled,
+            g10: K::Disabled,
+            g11: L::Disabled,
+            g12: M::Disabled,
+            g13: N::Disabled,
+            g14: O::Disabled,
+            g15: P::Disabled,
+            g16: Q::Disabled,
+            g17: R::Disabled,
+            g18: S::Disabled,
+            g19: T::Disabled,
+            g20: U::Disabled,
+            g21: V::Disabled,
+            g22: W::Disabled,
+            g23: X::Disabled,
         ) -> Self {
-            Self::new_with_context(g0, g1, g2, g3, g4, g5, g6, g7, ())
+            Self::new_with_context(g0, g1, g2, g3, g4, g5, g6, g7,
+                                   g8, g9, g10, g11, g12, g13, g14, g15,
+                                   g16, g17, g18, g19, g20, g21, g22, g23,())
         }
     }
 }
@@ -738,7 +1050,7 @@ macro_rules! io_pins_with_typestate {
 use lc3_traits::peripherals::gpio::{self as lc3_gp};
 
 #[allow(clippy::toplevel_ref_arg)]
-impl<'c, 'i, A, B, C, D, E, F, G, H, I, CC> lc3_gp::Gpio<'i> for Gpio<'c, A, B, C, D, E, F, G, H, I, CC>
+impl<'c, 'i, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, CC> lc3_gp::Gpio<'i> for Gpio<'c, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, CC>
 where
     A: Interrupts + IoPin<Ctx = CC>,
     B: Interrupts + IoPin<Ctx = CC>,
@@ -748,7 +1060,23 @@ where
     F: Interrupts + IoPin<Ctx = CC>,
     G: Interrupts + IoPin<Ctx = CC>,
     H: Interrupts + IoPin<Ctx = CC>,
-    I: InterruptSolution<A, B, C, D, E, F, G, H, CC>,
+    I: Interrupts + IoPin<Ctx = CC>,
+    J: Interrupts + IoPin<Ctx = CC>,
+    K: Interrupts + IoPin<Ctx = CC>,
+    L: Interrupts + IoPin<Ctx = CC>,
+    M: Interrupts + IoPin<Ctx = CC>,
+    N: Interrupts + IoPin<Ctx = CC>,
+    O: Interrupts + IoPin<Ctx = CC>,
+    P: Interrupts + IoPin<Ctx = CC>,
+    Q: Interrupts + IoPin<Ctx = CC>,
+    R: Interrupts + IoPin<Ctx = CC>,
+    S: Interrupts + IoPin<Ctx = CC>,
+    T: Interrupts + IoPin<Ctx = CC>,
+    U: Interrupts + IoPin<Ctx = CC>,
+    V: Interrupts + IoPin<Ctx = CC>,
+    W: Interrupts + IoPin<Ctx = CC>,
+    X: Interrupts + IoPin<Ctx = CC>,
+    Y: InterruptSolution<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, CC>,
 {
     fn set_state(&mut self, pin: lc3_gp::GpioPin, state: lc3_gp::GpioState) -> Result<(), GpioMiscError> {
         pin_proxy!(

@@ -75,8 +75,11 @@ mod tm4c_clock;
 use tm4c123x_hal::gpio::{
     self as gp,
     PullUp,
-    gpiof::{self, PF0, PF1, PF2, PF3, PF4},
-    gpiob::{self, PB5, PB6, PB7},
+    gpioa::*,
+    gpiof::*,//{self, PF0, PF1, PF2, PF3, PF4},
+    gpiob::*,//{self, PB5, PB6, PB7},
+    gpioc::*,
+    gpiod::*,
 };
 
 generic_gpio::io_pins_with_typestate! {
@@ -85,21 +88,53 @@ generic_gpio::io_pins_with_typestate! {
 
     for pins {
         /// ... (red)
-        PF0 as G0,
+        PA2 as G0,
         /// ... (blue)
-        PF1 as G1,
+        PA3 as G1,
         /// ... (green)
-        PF2 as G2,
+        PA4 as G2,
         /// ...
-        PF3 as G3,
+        PB2 as G3,
         /// ...
-        PF4 as G4,
+        PB3 as G4,
         /// ...
-        PB5 as G5,
+        PB6 as G5,
         /// ...
-        PB6 as G6,
+        PB7 as G6,
         /// ...
-        PB7 as G7,
+        PC4 as G7,
+
+        PC5 as G8,
+        /// ...
+        PC6 as G9,
+        /// ...
+        PC7 as G10,
+        /// ...
+        PD2 as G11,
+
+        PD3 as G12,
+        /// ...
+        PD6 as G13,
+        /// ...
+        PF0 as G14,
+        /// ...
+        PF1 as G15,
+
+        PF2 as G16,
+        /// ...
+        PF3 as G17,
+        /// ...
+        PF4 as G18,
+        /// ...
+        PB5 as G19,
+
+        PB0 as G20,
+        /// ...
+        PB1 as G21,
+        /// ...
+        PC3 as G22,
+        /// ...
+        PB4 as G23,
     } as Tm4cGpio;
 
     type Ctx = ();
@@ -179,7 +214,7 @@ type Clocks = hal::sysctl::Clocks;
 
 pub fn setup(
     state: &SimpleEventFutureSharedState,
-) -> (impl Control<EventFuture = EventFuture<'_, SimpleEventFutureSharedState>> + '_, (PortA, Uart0, PowerControl, Clocks)) {
+) -> (impl Control<EventFuture = EventFuture<'_, SimpleEventFutureSharedState>> + '_, (PA0<AlternateFunction<AF1, hal::gpio::PushPull>>, PA1<AlternateFunction<AF1, hal::gpio::PushPull>>, Uart0, PowerControl, Clocks)) {
     let p = hal::Peripherals::take().unwrap();
 
     let mut sc = p.SYSCTL.constrain();
@@ -190,19 +225,23 @@ pub fn setup(
 
     let clocks = sc.clock_setup.freeze();
 
+    let mut portf = p.GPIO_PORTF.split(&sc.power_control);
+   // let pf0 = portf.pf0.unlock(&mut portf.control);  //pf0 is special pin to be unlocked
+    let mut porta = p.GPIO_PORTA.split(&sc.power_control);
+    let mut portb = p.GPIO_PORTB.split(&sc.power_control);
+    let mut portc = p.GPIO_PORTC.split(&sc.power_control);
+    let mut portd = p.GPIO_PORTD.split(&sc.power_control);
+    let mut porte = p.GPIO_PORTE.split(&sc.power_control);
+
     // Peripheral Init:
     // Peripheral Init:
     let peripheral_set = {
-        let mut portf = p.GPIO_PORTF.split(&sc.power_control);
-        let pf0 = portf.pf0.unlock(&mut portf.control);  //pf0 is special pin to be unlocked
-        let portb = p.GPIO_PORTB;
 
-        let gpiof::Parts { pf1: g1, pf2: g2, pf3: g3, pf4: g4, .. } = portf;
-        let gpiob::Parts { pb5: g5, pb6: g6, pb7: g7, .. } = portb.split(&sc.power_control);
-        let gpio = Tm4cGpio::new(pf0, g1, g2, g3, g4, g5, g6, g7);
+        let gpio = Tm4cGpio::new(porta.pa2, porta.pa3, porta.pa4, portb.pb2, portb.pb3, portb.pb6, portb.pb7, portc.pc4,
+                                 portc.pc5, portc.pc6, portc.pc7, portd.pd2, portd.pd3, portd.pd6, portf.pf0.unlock(&mut portf.control), portf.pf1,
+                                 portf.pf2, portf.pf3, portf.pf4, portb.pb5, portb.pb0, portb.pb1, portc.pc3.unlock(&mut portc.control), portb.pb4);
 
 
-        let porte = p.GPIO_PORTE.split(&sc.power_control);
         let pe3 = porte.pe3.into_analog_state();
         let pe2 = porte.pe2.into_analog_state();
         let pe1 = porte.pe1.into_analog_state();
@@ -266,7 +305,7 @@ pub fn setup(
     );
 
     let sim = Simulator::new_with_state(interp, state);
-    let aux = (p.GPIO_PORTA, p.UART0, sc.power_control, clocks);
+    let aux = (porta.pa0.into_af_push_pull::<hal::gpio::AF1>(&mut porta.control), porta.pa1.into_af_push_pull::<hal::gpio::AF1>(&mut porta.control), p.UART0, sc.power_control, clocks);
 
     (sim, aux)
 }
@@ -278,18 +317,14 @@ pub type Serial0 = hal::serial::Serial<
     (),
     (),
 >;
-pub fn setup_uart(porta: PortA, u0: Uart0, pc: &PowerControl, clocks: &Clocks) -> Serial0 {
-    let mut porta = porta.split(pc);
+pub fn setup_uart(pa0: PA0<AlternateFunction<AF1, hal::gpio::PushPull>>, pa1: PA1<AlternateFunction<AF1, hal::gpio::PushPull>>, u0: Uart0, pc: &PowerControl, clocks: &Clocks) -> Serial0 {
+    //let mut porta = porta.split(pc);
 
     // Activate UART
     hal::serial::Serial::uart0(
         u0,
-        porta
-            .pa1
-            .into_af_push_pull::<hal::gpio::AF1>(&mut porta.control),
-        porta
-            .pa0
-            .into_af_push_pull::<hal::gpio::AF1>(&mut porta.control),
+            pa1,
+            pa0,
         (),
         (),
         1_500_000_u32.bps(),

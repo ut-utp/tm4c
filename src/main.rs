@@ -14,8 +14,8 @@ fn main() -> ! {
     let state: SimpleEventFutureSharedState = SimpleEventFutureSharedState::new();
     let (mut sim, aux) = setup(&state);
 
-    let (porta, u0, pc, clocks) = aux;
-    let uart0 = setup_uart(porta, u0, &pc, &clocks);
+    let (pa0, pa1, u0, pc, clocks) = aux;
+    let uart0 = setup_uart(pa0, pa1, u0, &pc, &clocks);
 
     run(&mut sim, uart0)
 }
