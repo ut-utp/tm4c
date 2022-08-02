@@ -57,7 +57,7 @@ use lc3_device_support::{
         transport::uart_simple::UartTransport,
         encoding::{PostcardEncode, PostcardDecode, Cobs},
     },
-    peripherals::adc::generic_adc_unit as GenericAdc,
+    peripherals::adc::GenericAdcUnit as GenericAdc,
     peripherals::timer::generic_timer_unit as GenericTimer,
     peripherals::clock::generic_clock_unit as GenericClock,
     util::Fifo,
