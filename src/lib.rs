@@ -510,25 +510,48 @@ pub fn run<C: Control>(sim: &mut C, uart: Serial0) -> !
 where
     <C as Control>::EventFuture: Unpin,
 {
-    let func: &dyn Fn() -> Cobs<Fifo<u8>> = &|| Cobs::try_new(Fifo::new()).unwrap();
-    let enc = PostcardEncode::<ResponseMessage, _, _>::new(func);
+    let fifo = RefCell::new(<Fifo<_>>::new());
+    let fifo = &fifo;
+    let enc = PostcardEncode::<ResponseMessage, Cobs<DynFifoBorrow<'_, 256>>, _>::new(|| Cobs::try_new(DynFifoBorrow(fifo.borrow_mut())).unwrap());
+
+    // let mut fifo = &mut fifo;
+    // let fifo: &&mut _ = &fifo;
+    // let mut fifo = FifoBorrow(&mut fifo);
+    // // let func: &dyn Fn() -> Cobs<Fifo<u8>> = &|| Cobs::try_new(Fifo::new()).unwrap();
+
+    // struct FifoBorrow<'f>(&'f mut Fifo<u8>);
+    // impl<'f> FifoBorrow<'f> {
+    //     fn get<'b>(&'b mut self) -> &'b mut Fifo<u8>
+    //     where
+    //         'f: 'b
+    //     {
+    //         self.0
+    //     }
+    // }
+
+    // fn func_cast<'fifo, F: FnMut() -> &'fifo mut Fifo<u8>>(func: F) -> F { func }
+    // let func: &dyn for<'a> FnMut() -> &'a mut Fifo<u8> = (|| {
+    //     let reborrow = &mut *fifo;
+    //     reborrow
+    // }) as _;
+
+    // let func: &dyn Fn() -> Cobs<Fifo<u8>> = &|| Cobs::try_new(Fifo::new()).unwrap();
+    // let enc = PostcardEncode::<ResponseMessage, _, _>::new(func);
+
     let dec = PostcardDecode::<RequestMessage, Cobs<Fifo<u8>>>::new();
-
-    let (tx, rx) = uart.split();
-
-    let mut tx = panic_write::PanicHandler::new_with_hook(tx, |w, panic_info| {
-        // TODO: multi-plexing friendly hook!
 
     with_panic_handler(uart, |tx, rx| {
         let tx = MutRefWrite(tx);
 
-    let mut device = Device::<UartTransport<_, _>, _, RequestMessage, ResponseMessage, _, _>::new(
-        enc,
-        dec,
-        UartTransport::new(rx, tx),
-    );
+        let mut device =
+            Device::<UartTransport<_, _>, _, RequestMessage, ResponseMessage, _, _>::new(
+                enc,
+                dec,
+                UartTransport::new(rx, tx),
+            );
 
-    loop {
-        let _ = device.step(sim);
-    }
+        loop {
+            let _ = device.step(sim);
+        }
+    })
 }
