@@ -293,28 +293,68 @@ pub fn setup(
     );
 
     let clocks = sc.clock_setup.freeze();
+    let porta = p.GPIO_PORTA.split(&sc.power_control);
+    let gpioa::Parts {
+        pa0,
+        pa1,
+        pa2,
+        pa3,
+        pa4,
+        pa5,
+        pa6,
+        pa7,
+        control: porta_control,
+    } = porta;
 
-    // Peripheral Init:
     // Peripheral Init:
     let peripheral_set = {
-        let mut portf = p.GPIO_PORTF.split(&sc.power_control);
-        let pf0 = portf.pf0.unlock(&mut portf.control);  //pf0 is special pin to be unlocked
-        let portb = p.GPIO_PORTB;
+        let (gpio_a, gpio_b, gpio_c) = {
+            let portb = p.GPIO_PORTB;
+            let portc = p.GPIO_PORTC;
+            let portd = p.GPIO_PORTD;
+            let portf = p.GPIO_PORTF;
 
-        let gpiof::Parts { pf1: g1, pf2: g2, pf3: g3, pf4: g4, .. } = portf;
-        let gpiob::Parts { pb5: g5, pb6: g6, pb7: g7, .. } = portb.split(&sc.power_control);
-        let gpio = Tm4cGpio::new(pf0, g1, g2, g3, g4, g5, g6, g7);
+            let (gb2, gb3, gb4, gb5, gb6, gb7) = (pa2, pa3, pa4, pa5, pa6, pa7);
+            let gpiob::Parts {
+                pb0: gc0,
+                pb1: gc1,
+                pb2: gc2,
+                pb3: gc3,
+                pb4: gc4,
+                pb5: gc5,
+                pb6: gc6,
+                pb7: gc7,
+                control: _,
+            } = portb.split(&sc.power_control);
+            let gpioc::Parts {
+                pc4: ga5, pc5: ga6, ..
+            } = portc.split(&sc.power_control);
+            let gpiod::Parts {
+                pd1: ga7,
+                pd2: gb0,
+                pd3: gb1,
+                ..
+            } = portd.split(&sc.power_control);
+            let gpiof::Parts {
+                pf0,
+                pf1: ga0,
+                pf2: ga1,
+                pf3: ga2,
+                pf4: ga4,
+                control: mut portf_control,
+                ..
+            } = portf.split(&sc.power_control);
 
+            let pf0 = pf0.unlock(&mut portf_control); // pf0 is special pin to be unlocked
+            let ga3 = pf0;
 
-        let porte = p.GPIO_PORTE.split(&sc.power_control);
-        let pe3 = porte.pe3.into_analog_state();
-        let pe2 = porte.pe2.into_analog_state();
-        let pe1 = porte.pe1.into_analog_state();
-        let pe0 = porte.pe0.into_analog_state();
-        let pe5 = porte.pe5.into_analog_state();
-        let pe4 = porte.pe4.into_analog_state();
-        let adc_unit = hal::adc::Adc::adc0(p.ADC0, &sc.power_control);
-        let adc = GenericAdc::new(adc_unit, pe3, pe2, pe1, pe0, pe5, pe4);
+            let gpio_a = GpioBankA::new(ga0, ga1, ga2, ga3, ga4, ga5, ga6, ga7);
+            let gpio_b = GpioBankB::new(gb0, gb1, gb2, gb3, gb4, gb5, gb6, gb7);
+            let gpio_c = GpioBankC::new(gc0, gc1, gc2, gc3, gc4, gc5, gc6, gc7);
+
+            (gpio_a, gpio_b, gpio_c)
+        };
+
 
         // let portb = unsafe { hal::Peripherals::steal() }.GPIO_PORTB;
         // let portd = p.GPIO_PORTD;

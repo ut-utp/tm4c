@@ -787,13 +787,13 @@ macro_rules! io_pins_with_typestate {
         //     $($alias,)*
         //     $ctx,
         // >;
-    };
+    }};
 }
 
 use lc3_traits::peripherals::gpio::{self as lc3_gp};
 
 #[allow(clippy::toplevel_ref_arg)]
-impl<'c, 'i, A, B, C, D, E, F, G, H, I, CC> lc3_gp::Gpio<'i> for Gpio<'c, A, B, C, D, E, F, G, H, I, CC>
+impl<'c, A, B, C, D, E, F, G, H, I, CC> lc3_gp::Gpio for Gpio<'c, A, B, C, D, E, F, G, H, I, CC>
 where
     A: Interrupts + IoPin<Ctx = CC>,
     B: Interrupts + IoPin<Ctx = CC>,
@@ -830,12 +830,6 @@ where
     fn write(&mut self, pin: lc3_gp::GpioPin, bit: bool) -> Result<(), lc3_gp::GpioWriteError> {
         pin_proxy!((self) pins[pin] as ref mut p => p.write(bit))
     }
-
-
-    fn register_interrupt_flags(&mut self, _flags: & 'i GpioPinArr<AtomicBool>) {
-        /* todo: remove this! */
-    }
-
 
     fn interrupt_occurred(&self, pin: lc3_gp::GpioPin) -> bool {
         debug_assert!(matches!(self.get_state(pin), lc3_gp::GpioState::Interrupt));
