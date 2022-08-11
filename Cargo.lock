@@ -1534,7 +1534,7 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 [[package]]
 name = "tm4c-hal"
 version = "0.4.1"
-source = "git+https://github.com/ut-utp/tm4c-hal?branch=utp-patches#2c1475309faec4b7fe9c0c573640a7f39e1f54fc"
+source = "git+https://github.com/ut-utp/tm4c-hal?branch=utp-patches#0b7a3f42f3ad5d366bbf472a118bc42ef7cd2524"
 dependencies = [
  "cast",
  "cortex-m 0.6.7",
@@ -1557,7 +1557,7 @@ dependencies = [
 [[package]]
 name = "tm4c123x-hal"
 version = "0.10.2"
-source = "git+https://github.com/ut-utp/tm4c-hal?branch=utp-patches#2c1475309faec4b7fe9c0c573640a7f39e1f54fc"
+source = "git+https://github.com/ut-utp/tm4c-hal?branch=utp-patches#0b7a3f42f3ad5d366bbf472a118bc42ef7cd2524"
 dependencies = [
  "cast",
  "cortex-m 0.6.7",
