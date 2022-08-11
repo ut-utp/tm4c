@@ -112,7 +112,8 @@ compile_error!(
     use one of the aliases (like `cargo r` to run) defined in `.cargo/config`.
 
 
-");
+"
+);
 
 pub const PANIC_DELIM: &str = "++++++++++";
 pub const END_DELIM: &str = "==========";
@@ -126,9 +127,8 @@ use core::fmt::Write;
 
 use core::convert::Infallible;
 
+use hal::gpio::{AlternateFunction, IsUnlocked, PushPull, Tristate, AF1};
 use hal::prelude::*;
-use hal::gpio::{AlternateFunction, AF1, PushPull};
-use hal::gpio::gpioa::{PA1, PA0};
 
 
 use lc3_traits::control::rpc::{
@@ -170,54 +170,62 @@ mod tm4c_clock;
 
 use tm4c123x_hal::gpio::{
     self as gp,
-    PullUp,
+    gpioa::{self, PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7},
+    gpiob::{self, PB0, PB1, PB2, PB3, PB4, PB5, PB6, PB7},
+    gpioc::{self, PC4, PC5 /* , PC6, PC7 */},
+    gpiod::{self, PD1, PD2, PD3},
     gpiof::{self, PF0, PF1, PF2, PF3, PF4},
-    gpiob::{self, PB5, PB6, PB7},
+    PullUp,
 };
 
-generic_gpio::io_pins_with_typestate! {
-    #![allow(clippy::unit_arg)]
-    //! TODO: module doc comment!
+generic_gpio::multi_bank! {
+    for banks {
+        //! TODO: module doc comment!
+        for pins {
+            /** ... (red)   */ PF1 as GA0, /** ... (green) */ PF2 as GA1,
+            /** ... (blue)  */ PF3 as GA2, /** ... button  */ PF0 as GA3,
+            /** ... button  */ PF4 as GA4, /** ...         */ PC4 as GA5,
+            /** ...         */ PC5 as GA6, /** ...         */ PD1 as GA7,
+        } as GpioBankA;
 
-    for pins {
-        /// ... (red)
-        PF0 as G0,
-        /// ... (blue)
-        PF1 as G1,
-        /// ... (green)
-        PF2 as G2,
-        /// ...
-        PF3 as G3,
-        /// ...
-        PF4 as G4,
-        /// ...
-        PB5 as G5,
-        /// ...
-        PB6 as G6,
-        /// ...
-        PB7 as G7,
-    } as Tm4cGpio;
+        //! TODO: module doc comment!
+        for pins {
+            /** ...         */ PD2 as GB0, /** ...         */ PD3 as GB1,
+            /** ...         */ PA2 as GB2, /** ...         */ PA3 as GB3,
+            /** ...         */ PA4 as GB4, /** ...         */ PA5 as GB5,
+            /** ...         */ PA6 as GB6, /** ...         */ PA7 as GB7,
+        } as GpioBankB;
 
-    type Ctx = ();
-    type Error = Infallible;
+        //! TODO: module doc comment!
+        for pins {
+            /** ...         */ PB0 as GC0, /** ...         */ PB1 as GC1,
+            /** ...         */ PB2 as GC2, /** ...         */ PB3 as GC3,
+            /** ...         */ PB4 as GC4, /** ...         */ PB5 as GC5,
+            /** ...         */ PB6 as GC6, /** ...         */ PB7 as GC7,
+        } as GpioBankC;
+    }: generic_gpio::io_pins_with_typestate {
 
-    type Disabled = gp::Tristate;
-    type Input = gp::Input<PullUp>;
-    type Output = gp::Output<PushPull>;
+        type Ctx = ();
+        type Error = Infallible;
 
-    => disabled = |x, ()| Ok(x.into_tri_state())
-    => input    = |x, ()| Ok(x.into_pull_up_input())
-    => output   = |x, ()| Ok(x.into_push_pull_output())
+        type Disabled = gp::Tristate;
+        type Input = gp::Input<PullUp>;
+        type Output = gp::Output<PushPull>;
 
-    => enable  interrupts = |inp, ()| Ok(inp.set_interrupt_mode(gp::InterruptMode::EdgeRising))
-    => disable interrupts = |inp, ()| {
-        inp.clear_interrupt();
-        Ok(inp.set_interrupt_mode(gp::InterruptMode::Disabled))
-    }
+        => disabled = |x, ()| Ok(x.into_tri_state())
+        => input    = |x, ()| Ok(x.into_pull_up_input())
+        => output   = |x, ()| Ok(x.into_push_pull_output())
 
-    => interrupts {
-        check = |i, ()| i.get_interrupt_status();
-        reset = |i, ()| i.clear_interrupt();
+        => enable  interrupts = |inp, ()| Ok(inp.set_interrupt_mode(gp::InterruptMode::EdgeRising))
+        => disable interrupts = |inp, ()| {
+            inp.clear_interrupt();
+            Ok(inp.set_interrupt_mode(gp::InterruptMode::Disabled))
+        }
+
+        => interrupts {
+            check = |i, ()| i.get_interrupt_status();
+            reset = |i, ()| i.clear_interrupt();
+        }
     }
 }
 

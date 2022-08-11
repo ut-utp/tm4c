@@ -604,6 +604,60 @@ pub trait Interrupts: IoPin {
     fn disable_interrupts(i: &mut Self::Input, ctx: &mut Self::Ctx) -> Result<(), Self::Error>;
 }
 
+// TODO: support the whole port optimization!
+
+pub use crate::multi_bank;
+#[macro_export]
+macro_rules! multi_bank {
+    (
+        for banks {
+            $(
+                $(#![$($mod_meta:tt)*])*
+
+                for pins {$(
+                    $(#[$($meta:tt)*])*
+                    $pin_struct:ident as $alias:ident,
+                )*} as $gpio_alias:ident;
+            )+
+        }: $macro_name:path {
+            $($tt:tt)*
+        }
+    ) => {
+        $crate::multi_bank!(expand: $macro_name
+            | with suffix {
+                $($tt)*
+            } for [$({
+                $(#![$($mod_meta)*])*
+
+                for pins {$(
+                    $(#[$($meta)*])*
+                    $pin_struct as $alias,
+                )*} as $gpio_alias;
+
+            })+]
+        );
+    };
+
+    (expand: $next:path | with suffix { $($args:tt)* } for [ { $($first:tt)* } $($rest:tt)* ]) => {
+        $next! {
+            $($first)*
+            $($args)*
+        }
+
+        $crate::multi_bank! {
+            expand: $next | with suffix { $($args)* }
+            for [ $($rest)* ]
+        }
+    };
+
+    (expand: $next:path | with suffix { $($args:tt)* } for [ ]) => { };
+}
+
+#[doc(hidden)]
+pub mod macro_support {
+    pub use paste::paste;
+}
+
 pub use crate::io_pins_with_typestate;
 #[macro_export]
 macro_rules! io_pins_with_typestate {
@@ -639,9 +693,10 @@ macro_rules! io_pins_with_typestate {
         // $(
 
         // )?
-    ) => {
+    ) => { $crate::generic_gpio::macro_support::paste! {
         $(#[$($mod_meta)*])*
-        pub mod io_pins {
+        #[allow(clippy::unit_arg)]
+        pub mod [< io_pins $gpio_alias:lower:snake >] {
             #[allow(unused)]
             use super::*;
             #[derive(Debug)]
@@ -713,7 +768,7 @@ macro_rules! io_pins_with_typestate {
             )*
         }
 
-        pub use io_pins::{
+        pub use [< io_pins $gpio_alias:lower:snake >]::{
             $($alias),*
         };
         // TODO: support the other flag based config too!
