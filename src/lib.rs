@@ -235,55 +235,49 @@ use embedded_time as hal_time;
 use hal_time::duration::Milliseconds;
 use hal_time::fixed_point::FixedPoint;
 
-use tm4c123x_hal::timer::*;
 use tm4c123x_hal::time::*;
+use tm4c123x_hal::timer::*;
 
-pub struct MillisU16(Millis);
+#[derive(Clone, Copy)]
+pub struct MillisU16(pub Millis);
 
 impl Into<Millis> for MillisU16 {
-    fn into(self) -> Millis{
+    fn into(self) -> Millis {
         self.0
     }
 }
-impl From<Milliseconds> for MillisU16{
+impl From<Milliseconds> for MillisU16 {
     fn from(val: Milliseconds) -> Self {
         MillisU16(u32::millis(val.integer()))
     }
 }
 
-impl Into<Milliseconds> for MillisU16{
-    fn into(self) -> Milliseconds{
-        Milliseconds::new(self.0.0)
+impl Into<Milliseconds> for MillisU16 {
+    fn into(self) -> Milliseconds {
+        Milliseconds::new(self.0 .0)
     }
-
 }
-
-//Clock board Specifics
-// struct WrappingU16(u16);
-
-// impl From<u64> for WrappingU16{
-//     fn from(val: u64) -> Self {
-//         unimplemented!()
-//     }
-// }
-
-// impl Into<u16> for WrappingU16{
-//     fn into(self) -> u16{
-//         unimplemented!()
-//     }
-
-// }
 
 pub static FLAGS: PeripheralInterruptFlags = PeripheralInterruptFlags::new();
 
-type PortA = tm4c123x::GPIO_PORTA;
+type PortACtrl = hal::gpio::gpioa::GpioControl;
 type Uart0 = hal::serial::UART0;
 type PowerControl = hal::sysctl::PowerControl;
 type Clocks = hal::sysctl::Clocks;
 
 pub fn setup(
     state: &SimpleEventFutureSharedState,
-) -> (impl Control<EventFuture = EventFuture<'_, SimpleEventFutureSharedState>> + '_, (PortA, Uart0, PowerControl, Clocks)) {
+) -> (
+    impl Control<EventFuture = EventFuture<'_, SimpleEventFutureSharedState>> + '_,
+    (
+        PortACtrl,
+        PA0<Tristate>,
+        PA1<Tristate>,
+        Uart0,
+        PowerControl,
+        Clocks,
+    ),
+) {
     let p = hal::Peripherals::take().unwrap();
 
     let mut sc = p.SYSCTL.constrain();
@@ -410,7 +404,7 @@ pub fn setup(
     );
 
     let sim = Simulator::new_with_state(interp, state);
-    let aux = (p.GPIO_PORTA, p.UART0, sc.power_control, clocks);
+    let aux = (porta_control, pa0, pa1, p.UART0, sc.power_control, clocks);
 
     (sim, aux)
 }
@@ -422,18 +416,25 @@ pub type Serial0 = hal::serial::Serial<
     (),
     (),
 >;
-pub fn setup_uart(porta: PortA, u0: Uart0, pc: &PowerControl, clocks: &Clocks) -> Serial0 {
-    let mut porta = porta.split(pc);
+pub type Serial0TxInner =
+    hal::serial::Tx<tm4c123x::UART0, PA1<AlternateFunction<AF1, PushPull>>, ()>;
+pub type PanicHandlerFunc = fn(&mut Serial0TxInner, &PanicInfo);
+pub type Serial0Tx = PanicHandler<Serial0TxInner, PanicHandlerFunc>;
+pub type Serial0Rx = hal::serial::Rx<tm4c123x::UART0, PA0<AlternateFunction<AF1, PushPull>>, ()>;
 
+pub fn setup_uart(
+    pa0: PA0<impl IsUnlocked>,
+    pa1: PA1<impl IsUnlocked>,
+    porta_control: &mut PortACtrl,
+    u0: Uart0,
+    pc: &PowerControl,
+    clocks: &Clocks,
+) -> Serial0 {
     // Activate UART
     hal::serial::Serial::uart0(
         u0,
-        porta
-            .pa1
-            .into_af_push_pull::<hal::gpio::AF1>(&mut porta.control),
-        porta
-            .pa0
-            .into_af_push_pull::<hal::gpio::AF1>(&mut porta.control),
+        pa1.into_af_push_pull::<hal::gpio::AF1>(porta_control),
+        pa0.into_af_push_pull::<hal::gpio::AF1>(porta_control),
         (),
         (),
         1_500_000_u32.bps(),
@@ -446,7 +447,9 @@ pub fn setup_uart(porta: PortA, u0: Uart0, pc: &PowerControl, clocks: &Clocks) -
 
 // TODO: do away with this once we update `core`.
 struct MutRefWrite<'w, W: embedded_hal::serial::Write<u8>>(&'w mut W);
-impl<'w, W: embedded_hal::serial::Write<u8>> embedded_hal::serial::Write<u8> for MutRefWrite<'w, W> {
+impl<'w, W: embedded_hal::serial::Write<u8>> embedded_hal::serial::Write<u8>
+    for MutRefWrite<'w, W>
+{
     type Error = W::Error;
 
     fn write(&mut self, word: u8) -> nb::Result<(), Self::Error> {
@@ -456,6 +459,31 @@ impl<'w, W: embedded_hal::serial::Write<u8>> embedded_hal::serial::Write<u8> for
     fn flush(&mut self) -> nb::Result<(), Self::Error> {
         self.0.flush()
     }
+}
+
+fn panic_handler_func(w: &mut Serial0TxInner, panic_info: &PanicInfo) {
+    // TODO: multi-plexing friendly hook!
+    writeln!(w, "\n{}", PANIC_DELIM).unwrap();
+    writeln!(w, "{panic_info}").unwrap();
+    writeln!(w, "{}", PANIC_DELIM).unwrap();
+}
+
+// Note: doesn't currently give you the uart back.
+pub fn with_panic_handler<R>(
+    uart: Serial0,
+    func: impl FnOnce(&mut Serial0TxInner, Serial0Rx) -> R,
+) -> R {
+    let (tx, rx) = uart.split();
+
+    let handler: PanicHandlerFunc = panic_handler_func;
+    let tx = panic_write::PanicHandler::new_with_hook(tx, handler);
+    pin_utils::pin_mut!(tx);
+    tx.register();
+    // TODO: fix unsafety in ^; we can move the Pin!
+    // TODO: when register took `Pin<&mut Self>` we seemed to be able to
+    // make a copy of the Pin????
+
+    func(tx.get_inner(), rx)
 }
 
 pub fn run<C: Control>(sim: &mut C, uart: Serial0) -> !
@@ -471,11 +499,8 @@ where
     let mut tx = panic_write::PanicHandler::new_with_hook(tx, |w, panic_info| {
         // TODO: multi-plexing friendly hook!
 
-        writeln!(w, "\n{}", PANIC_DELIM).unwrap();
-        writeln!(w, "{panic_info}").unwrap();
-        writeln!(w, "{}", PANIC_DELIM).unwrap();
-    });
-    let tx = MutRefWrite(&mut *tx);
+    with_panic_handler(uart, |tx, rx| {
+        let tx = MutRefWrite(tx);
 
     let mut device = Device::<UartTransport<_, _>, _, RequestMessage, ResponseMessage, _, _>::new(
         enc,
