@@ -120,51 +120,51 @@ pub const END_DELIM: &str = "==========";
 
 extern crate tm4c123x_hal as hal;
 
+use core::cell::RefCell;
 use core::fmt::Write;
 
 // use crate::flash::Flash_Unit;
 // use crate::paging::RAM_Pages;
 
 use core::convert::Infallible;
+use core::panic::PanicInfo;
 
 use hal::gpio::{AlternateFunction, IsUnlocked, PushPull, Tristate, AF1};
 use hal::prelude::*;
 
-
-use lc3_traits::control::rpc::{
-    SimpleEventFutureSharedState, Device, RequestMessage, ResponseMessage, EventFuture
-};
-use lc3_baseline_sim::interp::{
-    Interpreter,
-    PeripheralInterruptFlags, OwnedOrRef, MachineState,
-};
+use lc3_baseline_sim::interp::{Interpreter, MachineState};
 use lc3_baseline_sim::sim::Simulator;
+use lc3_device_support::rpc::encoding::DynFifoBorrow;
+use lc3_device_support::util::PeripheralInterruptFlags;
+use lc3_device_support::{
+    memory::PartialMemory,
+    peripherals::adc::GenericAdc,
+    peripherals::clock::GenericClock,
+    peripherals::timer::GenericTimers,
+    rpc::{
+        encoding::{Cobs, PostcardDecode, PostcardEncode},
+        transport::uart_simple::device::UartTransport,
+    },
+    util::Fifo,
+};
+use lc3_traits::control::rpc::{
+    Device, EventFuture, RequestMessage, ResponseMessage, SimpleEventFutureSharedState,
+};
 use lc3_traits::control::Control;
 use lc3_traits::peripherals::stubs::PwmStub;
 use lc3_traits::peripherals::{
+    stubs::{/*PeripheralsStub,*/ InputStub, OutputStub},
     PeripheralSet,
-    stubs::{
-        /*PeripheralsStub,*/ InputStub, OutputStub
-    },
-};
-use lc3_device_support::{
-    memory::PartialMemory,
-    rpc::{
-        transport::uart_simple::UartTransport,
-        encoding::{PostcardEncode, PostcardDecode, Cobs},
-    },
-    peripherals::adc::generic_adc_unit as GenericAdc,
-    peripherals::timer::generic_timer_unit as GenericTimer,
-    peripherals::clock::generic_clock_unit as GenericClock,
-    util::Fifo,
 };
 
-mod generic_gpio;
 mod flash;
-mod paging;
+mod generic_gpio;
 mod memory_trait_RAM_flash;
-mod tm4c_clock;
+mod paging;
+pub mod tm4c_clock;
 
+use panic_write::PanicHandler;
+use tm4c_clock::Tm4cTimerTrait;
 
 // GPIO Board specifics
 
@@ -349,6 +349,17 @@ pub fn setup(
             (gpio_a, gpio_b, gpio_c)
         };
 
+        let adc = {
+            let porte = p.GPIO_PORTE.split(&sc.power_control);
+            let pe0 = porte.pe0.into_analog_state();
+            let pe1 = porte.pe1.into_analog_state();
+            let pe2 = porte.pe2.into_analog_state();
+            let pe3 = porte.pe3.into_analog_state();
+            let pe4 = porte.pe4.into_analog_state();
+            let pe5 = porte.pe5.into_analog_state();
+            let adc_unit = hal::adc::Adc::adc0(p.ADC0, &sc.power_control);
+            GenericAdc::<12, _, _, _, _, _, _, _, _, _>::new(adc_unit, pe0, pe1, pe2, pe3, pe4, pe5)
+        };
 
         // let portb = unsafe { hal::Peripherals::steal() }.GPIO_PORTB;
         // let portd = p.GPIO_PORTD;
@@ -368,36 +379,45 @@ pub fn setup(
         // );
         let pwm = PwmStub;
 
-        let tm4c_timer0 = Timer::<tm4c123x::WTIMER0>::wtimer0(p.WTIMER0, MillisU16(Millis(4)), &sc.power_control, &clocks);
-        let tm4c_timer1 = Timer::<tm4c123x::WTIMER1>::wtimer1(p.WTIMER1, MillisU16(Millis(4)), &sc.power_control, &clocks);
+        let timers = {
+            let tm4c_timer0 = Timer::<tm4c123x::WTIMER0>::wtimer0(
+                p.WTIMER0,
+                MillisU16(Millis(400_000)),
+                &sc.power_control,
+                &clocks,
+            );
+            let tm4c_timer1 = Timer::<tm4c123x::WTIMER1>::wtimer1(
+                p.WTIMER1,
+                MillisU16(Millis(400_000)),
+                &sc.power_control,
+                &clocks,
+            );
 
-        let utp_timer = GenericTimer::<MillisU16, _, _, _>::new(tm4c_timer0, tm4c_timer1);
-        let timers = utp_timer;
+            GenericTimers::<MillisU16, _, _, _>::new(tm4c_timer0, tm4c_timer1)
+        };
 
-        let tm4c_clock = tm4c_clock::Tm4cClock::new(p.WTIMER2, &sc.power_control, &clocks);
-        let utp_clock = GenericClock::<_, u64>::new(tm4c_clock);
-        let clock = utp_clock;
+        let clock = {
+            let timer2 = Timer::<tm4c123x::WTIMER2>::new_checked(
+                p.WTIMER2,
+                MillisU16(Millis(65_536)),
+                &sc.power_control,
+                &clocks,
+            )
+            .unwrap();
+            GenericClock::new(timer2.as_clock())
+        };
 
-        PeripheralSet::new(
-            gpio,
-            adc,
-            pwm,
-            timers,
-            clock,
-            InputStub,
-            OutputStub,
-        )
+        PeripheralSet::new(gpio_a, adc, pwm, timers, clock, InputStub, OutputStub)
+            .with_gpio_bank_b(gpio_b)
+            .with_gpio_bank_c(gpio_c)
     };
 
     static mut MEMORY: PartialMemory = PartialMemory::new();
 
-    let interp: Interpreter<'static, _, _> = Interpreter::new(
+    let interp: Interpreter<_, _> = Interpreter::new(
         // SAFETY: we have exclusive access!
-        unsafe {
-            &mut MEMORY
-        },
+        unsafe { &mut MEMORY },
         peripheral_set,
-        OwnedOrRef::Ref(&FLAGS),
         [0; 8],
         0x200,
         MachineState::Running,

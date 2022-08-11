@@ -51,18 +51,24 @@ bench = false
 cortex-m-rt = { version = "0.6.15", features = ["device"] }
 cortex-m-semihosting = "0.5.0"
 panic-write = { git = "https://github.com/rrbutani/panic-write.git" } # TODO: replace with crates.io
+# panic-write = { path = "../panic-write" } # TODO: replace with crates.io
 
 # TODO: All of the below should use crates.io published version instead of git repos.
-lc3-device-support = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"] }
-lc3-baseline-sim = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"] }
-lc3-isa = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"] }
-lc3-traits = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false, features = ["no_std"]  }
+lc3-device-support = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false }
+lc3-baseline-sim = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false }
+lc3-isa = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false }
+lc3-traits = { git = "https://github.com/ut-utp/prototype.git", version = "0.1.0", default-features = false  }
 
 tm4c123x-hal = { git = "https://github.com/ut-utp/tm4c-hal", branch = "utp-patches" , features=["rt"] }
 tm4c123x = "0.9.0"
 embedded-hal = "0.2.7"
 embedded-time = "0.12.1"
+pin-utils = "0.1"
 nb = "1"
+
+# TODO: expose log levels here!
+
+paste = "1" # For `generic_gpio`, remove once that moves over!
 
 [dev-dependencies]
 ubench = { version = "0.1", git = "https://github.com/rrbutani/ubench", features = ["cortex-m"] } # TODO: replace with `crates.io`
